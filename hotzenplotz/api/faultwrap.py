@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 #
-# Copyright 2013 Sina Corporation
+# Copyright 2013 xxxx Corporation
 # All Rights Reserved.
 # Author: Jiajun Liu <iamljj@gmail.com>
 #
