@@ -1,0 +1,30 @@
+[composite:hotzenplotz]
+use = egg:Paste#urlmap
+/: hotzenplotzversions
+/v1.0: hotzenplotzapi_v1_0
+
+[composite:hotzenplotzapi_v1_0]
+use = call:hotzenplotz.api.auth:pipeline_factory
+noauth = faultwrap hotzenplotzapi_app_v1_0
+keystone = faultwrap authtoken keystonecontext hotzenplotzapi_app_v1_0
+
+[filter:authtoken]
+paste.filter_factory = keystone.middleware.auth_token:filter_factory
+auth_host = 127.0.0.1
+auth_port = 35357
+auth_protocol = http
+admin_tenant_name = service
+admin_user = hotzenplotz
+admin_password = admin
+
+[filter:keystonecontext]
+paste.filter_factory = hotzenplotz.api.auth:KeystoneContext.factory
+
+[filter:faultwrap]
+paste.filter_factory = hotzenplotz.api.faultwrap:FaultWrapper.factory
+
+[app:hotzenplotzversions]
+paste.app_factory = hotzenplotz.api.versions:Versions.factory
+
+[app:hotzenplotzapi_app_v1_0]
+paste.app_factory = hotzenplotz.api.router:APIRouter.factory
