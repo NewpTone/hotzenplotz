@@ -329,8 +329,29 @@ def update_load_balancer_http_servers(context, **kwargs):
         raise exception.UpdateLoadBalancerFailed(msg=str(exp))
     return module_func(context, **kwargs)
 
+def get_all_crons(context, **kwargs):
+    expect_keys = [
+        'user_id', 'tenant_id', 'all_tenants',
+    ]
+    utils.check_input_parameters(expect_keys, **kwargs)
 
-def get_load_balancer(context, **kwargs):
+    result = []
+    try:
+        all_tenants = int(kwargs['all_tenants'])
+        if context.is_admin and all_tenants:
+            filters = {}
+        else:
+            filters = {'project_id': kwargs['tenant_id']}
+            context = context.elevated(read_deleted='no')
+        all_crons = db.crons_get_all(context, filters=filters)
+        for cron_ref in all_crons:
+            result.append(format_msg_to_client(cron_ref))
+    except Exception, exp:
+        raise exception.GetAllCronFailed(msg=str(exp))
+
+    return {'data': result}
+
+def get_cron(context, **kwargs):
     expect_keys = [
         'tenant_id', 'uuid',
     ]
@@ -339,10 +360,10 @@ def get_load_balancer(context, **kwargs):
     result = None
     uuid = kwargs['uuid']
     try:
-        load_balancer_ref = db.load_balancer_get_by_uuid(context, uuid)
-        result = format_msg_to_client(load_balancer_ref)
+        cron_ref = db.cron_get_by_uuid(context, uuid)
+        result = format_msg_to_client(cron_ref)
     except Exception, exp:
-        raise exception.GetLoadBalancerFailed(msg=str(exp))
+        raise exception.GetCronFailed(msg=str(exp))
 
     return {'data': result}
 
@@ -364,27 +385,6 @@ def get_load_balancer_by_instance_uuid(context, **kwargs):
     return {'data': result}
 
 
-def get_all_load_balancers(context, **kwargs):
-    expect_keys = [
-        'user_id', 'tenant_id', 'all_tenants',
-    ]
-    utils.check_input_parameters(expect_keys, **kwargs)
-
-    result = []
-    try:
-        all_tenants = int(kwargs['all_tenants'])
-        if context.is_admin and all_tenants:
-            filters = {}
-        else:
-            filters = {'project_id': kwargs['tenant_id']}
-            context = context.elevated(read_deleted='no')
-        all_load_balancers = db.load_balancer_get_all(context, filters=filters)
-        for load_balancer_ref in all_load_balancers:
-            result.append(format_msg_to_client(load_balancer_ref))
-    except Exception, exp:
-        raise exception.GetAllLoadBalancerFailed(msg=str(exp))
-
-    return {'data': result}
 
 
 def get_all_http_servers(context, **kwargs):
@@ -404,7 +404,7 @@ def get_all_http_servers(context, **kwargs):
     return {'data': result}
 
 
-def delete_load_balancer_hard(context, load_balancer_ref):
+def delete_cron(context, load_balancer_ref):
     try:
         for association_ref in load_balancer_ref.instances:
             db.load_balancer_instance_association_destroy(
