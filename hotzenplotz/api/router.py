@@ -21,7 +21,7 @@ import routes
 from hotzenplotz.openstack.common import wsgi
 from hotzenplotz.openstack.common import log as logging
 
-from hotzenplotz.api.resource import device
+from hotzenplotz.api.resource import cron
 from hotzenplotz.api.resource import node
 from hotzenplotz.api.resource import pool
 
@@ -40,22 +40,34 @@ class APIRouter(wsgi.Router):
 
     def __init__(self):
         mapper = routes.Mapper()
-        self.resources = {}
+        self.controller = {}
         self._setup_basic_routes(mapper)
         super(APIRouter, self).__init__(mapper)
 
     def _setup_basic_routes(self, mapper):
         mapper.redirect("", "/")
-
-        self.resources['device'] = device.create_resource()
-        mapper.resource('device', 'devices',
-                        controller=self.resources['device'])
-
-        self.resources['pool'] = pool.create_resource()
-        mapper.resource('pool', 'pools',
-                        controller=self.resources['pool'])
-
-        self.resources['node'] = node.create_resource()
-        mapper.resource('node', 'nodes',
-                        controller=self.resources['node'])
+        
+        #Cron Operations
+        self.controller['cron'] = cron.create_resource()
+        mapper.connect('/crons',
+                       controller=self.controller['cron'],
+                       action='index',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/crons/{cron_id}',
+                       controller=self.controller['cron'],
+                       action='show',
+                       conditions=dict(method=['GET']))
+        mapper.connect('/crons',
+                       controller=self.controller['cron'],
+                       action='create',
+                       conditions=dict(method=['POST']))
+        mapper.connect('/crons/{cron_id}',
+                       controller=self.controller['cron'],
+                       action='update',
+                       conditions=dict(method=['PUT']))
+        mapper.connect('/crons/{cron_id}',
+                       controller=self.controller['cron'],
+                       action='delete',
+                       conditions=dict(method=['DELETE']))
+      
         import pdb; pdb.set_trace()
