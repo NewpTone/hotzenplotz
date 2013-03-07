@@ -2,7 +2,7 @@
 #
 # Copyright 2013 xxxx Corporation
 # All Rights Reserved.
-# Author: Jiajun Liu <iamljj@gmail.com>
+# Author: Yu xingchao <yuxcer@gmail.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -17,7 +17,7 @@
 #    under the License.
 
 """
-SQLAlchemy models for shunt data.
+SQLAlchemy models for hotzenplotz data.
 """
 import time
 
@@ -34,7 +34,7 @@ LOG = logging.getLogger(__name__)
 
 sql_opts = [
     cfg.StrOpt('sql_connection',
-               default='mysql://root:nova@127.0.0.1:3306/hotzenplotz',
+               default='mysql://root:2317@127.0.0.1:3306/hotzenplotz',
                help='Database connection'),
     cfg.IntOpt('sql_connection_debug',
                default=0,

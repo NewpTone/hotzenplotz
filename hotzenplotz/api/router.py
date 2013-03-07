@@ -92,4 +92,4 @@ class APIRouter(wsgi.Router):
                        controller=self.controller['exec'],
                        action='delete',
                        conditions=dict(method=['DELETE']))
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()

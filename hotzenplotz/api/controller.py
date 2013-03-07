@@ -22,6 +22,7 @@ Controller framework
 from hotzenplotz.openstack.common import log as logging
 from hotzenplotz.openstack.common import wsgi
 
+from hotzenplotz.api import api
 
 LOG = logging.getLogger(__name__)
 
@@ -59,18 +60,16 @@ class Controller(object):
         """Returns a list of the required entities"""
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
-        zmq_args = { 
-            'method': self.method_map['index'],
-            'args': {
+        method = self.method_map['index']
+        args = { 
                 'user_id': context.user_id,
                 'tenant_id': context.tenant_id,
                 'is_admin': context.is_admin,
                 'all_tenants': False,
-            },  
         }   
-        zmq_args['args'].update(req.GET)
-        LOG.debug(zmq_args)
-        result = self.client.call(zmq_args)
+        ctxt = context.get_context(**args)
+        method_func = getattr(api, method)
+        result = method_func(ctxt, **args)
         return result
 
     def show(self, req, id, **kwargs):

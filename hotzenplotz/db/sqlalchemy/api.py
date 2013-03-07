@@ -82,9 +82,11 @@ def get_by_id(context, model, id):
     query = model_query(context, model)
     return query.filter(model.id == id).one()
 
-
-# VIP CRUD
-
+# Get al crons
+@require_admin_context
+def cron_get_all(context, filters=None):
+    filters = filters or dict()
+    return model_query(context, models.cron).filter_by(**filters).all()
 
 # Device CRUD
 

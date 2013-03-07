@@ -10,14 +10,14 @@ if sys.version_info < (2, 7):
     requirements.append('argparse')
 
 setuptools.setup(
-    name="faucet",
+    name="hotzenplotz",
     version="0.1",
-    description="OpenStack Load Balancer Server",
-    long_description="OpenStack Load Balancer Server",
-    url='https://github.com/ljjjustin/faucet',
+    description="OpenStack Configuration Management Server",
+    long_description="OpenStack Configuration Management Server",
+    url='https://github.com/newptone/hotzenplotz',
     license='Apache',
-    author='Jiajun Liu',
-    author_email='iamljj@gmail.com',
+    author='Yu xingchao',
+    author_email='yuxcer@gmail.com',
     packages=setuptools.find_packages(exclude=['bin', 'tests', 'tools']),
     classifiers=[
         'Development Status :: 1 - Beta',
@@ -30,6 +30,6 @@ setuptools.setup(
     ],
     install_requires=requirements,
     scripts=[
-        'bin/faucet-server',
+  #      'bin/faucet-server',
     ],
 )

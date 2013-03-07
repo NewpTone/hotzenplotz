@@ -2,7 +2,7 @@
 #
 # Copyright 2013 xxxx Corporation
 # All Rights Reserved.
-# Author: Jiajun Liu <iamljj@gmail.com>
+# Author: Yu xingchao <yuxcer@gmail.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -29,7 +29,7 @@ BASE = declarative.declarative_base()
 
 
 class DictBase(object):
-    """Base class for Shunt Models."""
+    """Base class for Puppet Resource Models."""
     __table_args__ = {'mysql_engine': 'InnoDB'}
     created_at = sql.Column(sql.DateTime, default=timeutils.utcnow)
     updated_at = sql.Column(sql.DateTime, onupdate=timeutils.utcnow)
@@ -68,18 +68,23 @@ class DictBase(object):
         return local.iteritems()
 
 
-class VIP(BASE, DictBase):
-    """Represents a listener accept packet's from user."""
+class Cron(BASE, DictBase):
+    """Represents cron resource."""
 
-    __tablename__ = 'vips'
+    __tablename__ = 'crons'
     id = sql.Column(sql.String(36), primary_key=True)
-    name = sql.Column(sql.String(255), default=None)
-    description = sql.Column(sql.String(255), default=None)
-    address = sql.Column(sql.String(64), nullable=False)
-    port = sql.Column(sql.Integer, nullable=False)
-    protocol = sql.Column(sql.String(32), nullable=False)
-    lb_method = sql.Column(sql.String(32), nullable=False)
-    admin_state_up = sql.Column(sql.Boolean, default=True)
+    user_id = sql.Column(sql.String(255), nullable=False)
+    tenant_id = sql.Column(sql.String(255), nullable=False)
+    title = sql.Column(sql.String(255), default=None)
+    command = sql.Column(sql.String(255), default=None)
+    ensure = sql.Column(sql.String(16), default='present')
+    environment = sql.Column(sql.String(255), default=None)
+    hour = sql.Column(sql.String(16), default=None)
+    minute = sql.Column(sql.String(16), default=None)
+    month = sql.Column(sql.String(16), default=None)
+    monthday = sql.Column(sql.String(16), default=None)
+    weekday = sql.Column(sql.String(16), default=None)
+    user = sql.Column(sql.String(32), default=None)
 
 
 class Device(BASE, DictBase):
