@@ -34,7 +34,7 @@ LOG = logging.getLogger(__name__)
 
 sql_opts = [
     cfg.StrOpt('sql_connection',
-               default='mysql://root:2317@127.0.0.1:3306/hotzenplotz',
+               default='mysql://root:2317@localhost:3306/hotzenplotz',
                help='Database connection'),
     cfg.IntOpt('sql_connection_debug',
                default=0,

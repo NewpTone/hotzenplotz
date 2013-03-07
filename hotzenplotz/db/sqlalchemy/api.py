@@ -81,13 +81,39 @@ def apply_filters(query, model, filters=None):
 def get_by_id(context, model, id):
     query = model_query(context, model)
     return query.filter(model.id == id).one()
-
-# Get al crons
+# Crons CRUD
+# Get all crons
 @require_admin_context
 def cron_get_all(context, filters=None):
     filters = filters or dict()
-    return model_query(context, models.cron).filter_by(**filters).all()
+    return model_query(context, models.Cron).filter_by(**filters).all()
 
+# Get a cron
+def cron_get_by_name(context, name):
+    result = model_query(context, models.Cron).filter_by(
+        name=name).first()
+    if not result:
+        raise exception.CronNotFoundByName(cron_name=name)
+    return result
+
+# Create a cron
+def cron_create(context, values):
+
+    try:
+        result = cron_get_by_name(context, values['name'])
+    except exception.LoadBalancerNotFoundByName:
+        pass
+    except Exception, exp:
+        raise exp
+    else:
+        raise Exception('unknown DB error!')
+
+    load_balancer_ref = models.LoadBalancer()
+    load_balancer_ref.update(values)
+    context.session.add(load_balancer_ref)
+    context.session.flush()
+    return load_balancer_ref
+ 
 # Device CRUD
 
 
