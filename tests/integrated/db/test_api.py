@@ -1,11 +1,11 @@
 import datetime
 import unittest
 
-from faucet.common import config
-from faucet.common import context
-from faucet.common import exception
-from faucet import db
-from faucet.db.sqlalchemy import session
+from hotzenplotz.common import config
+from hotzenplotz.common import context
+from hotzenplotz.common import exception
+from hotzenplotz import db
+from hotzenplotz.db.sqlalchemy import session
 
 
 class DBApiTestCase(unittest.TestCase):

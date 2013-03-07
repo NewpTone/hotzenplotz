@@ -89,30 +89,30 @@ def cron_get_all(context, filters=None):
     return model_query(context, models.Cron).filter_by(**filters).all()
 
 # Get a cron
-def cron_get_by_name(context, name):
+def cron_get_by_title(context, title):
     result = model_query(context, models.Cron).filter_by(
-        name=name).first()
+        title=title).first()
     if not result:
-        raise exception.CronNotFoundByName(cron_name=name)
+        raise exception.CronNotFoundByTitle(cron_title=title)
     return result
 
 # Create a cron
 def cron_create(context, values):
 
     try:
-        result = cron_get_by_name(context, values['name'])
-    except exception.LoadBalancerNotFoundByName:
+        result = cron_get_by_title(context, values['title'])
+    except exception.CronNotFoundByTitle:
         pass
     except Exception, exp:
         raise exp
     else:
         raise Exception('unknown DB error!')
 
-    load_balancer_ref = models.LoadBalancer()
-    load_balancer_ref.update(values)
-    context.session.add(load_balancer_ref)
+    cron_ref = models.Cron()
+    cron_ref.update(values)
+    context.session.add(cron_ref)
     context.session.flush()
-    return load_balancer_ref
+    return cron_ref
  
 # Device CRUD
 
