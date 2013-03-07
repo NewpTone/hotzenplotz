@@ -1,6 +1,7 @@
 import datetime
 import unittest
 
+from hotzenplotz.openstack.common import uuidutils
 from hotzenplotz.common import config
 from hotzenplotz.common import context
 from hotzenplotz.common import exception
@@ -12,10 +13,24 @@ class DBApiTestCase(unittest.TestCase):
 
     def setUp(self):
         super(DBApiTestCase, self).setUp()
-        import pdb; pdb.set_trace()
+#        import pdb; pdb.set_trace()
         engine = session.get_engine()
         self.connection = engine.connect()
         #self.context = context.get_context()
+        self.configs = dict()
+        self.user_id = 'fake-user-0'
+        self.tenant_id = 'fake-project-0'
+        self.cron = {
+            'id':        uuidutils.generate_uuid(),
+            'user_id':   self.user_id,
+            'tenant_id': self.tenant_id,
+            'title':     'apt-mirror',
+            'command':   'apt-mirror',
+            'hour':      '21',
+            'minute':    '30',
+            'user':      'root',         
+        }
+        self.context = context.get_context(self.user_id, self.tenant_id)
 
     def tearDown(self):
         pass
@@ -25,11 +40,7 @@ class DBApiTestCase(unittest.TestCase):
         execution.execute("TRUNCATE %s;" % table)
 
     def truncate_all_tables(self):
-        self.truncate_table('vips')
-        self.truncate_table('devices')
-        self.truncate_table('pools')
-        self.truncate_table('monitors')
-        self.truncate_table('nodes')
+        self.truncate_table('crons')
 
     def compare_records(self, expect, actual, skiped=None):
         for k, v in actual.__dict__.iteritems():
@@ -39,12 +50,11 @@ class DBApiTestCase(unittest.TestCase):
                 continue
             self.assertEqual(expect[k], v)
 
-    def test_vip_create(self):
+    def test_table_create(self):
         self.truncate_all_tables()
         print "just a test"
-        pass
-        expect = db.vip_create(self.context, xxx)
-        actual = db.vip_get(self.context, expect.id)
+        expect = db.cron_create(self.context, self.cron)
+        actual = db.cron_get_by_id(self.context, expect.id)
         self.compare_records(expect, actual, skiped=['id'])
 
 

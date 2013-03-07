@@ -96,7 +96,14 @@ def cron_get_by_title(context, title):
         raise exception.CronNotFoundByTitle(cron_title=title)
     return result
 
+def cron_get_by_id(context, id):
+    result = model_query(context, models.Cron).filter_by(
+        id=id).first()
+    if not result:
+        raise exception.CronNotFoundById(cron_id=id)
+    return result
 # Create a cron
+
 def cron_create(context, values):
 
     try:
