@@ -115,12 +115,12 @@ def cron_create(context, values):
         raise exp
     else:
         raise Exception('unknown DB error!')
-
-    cron_ref = models.Cron()
-    cron_ref.update(values)
-    context.session.add(cron_ref)
-    context.session.flush()
-    return cron_ref
+    with context.session.begin(subtransactions=True):
+        cron_ref = models.Cron()
+        cron_ref.update(values)
+        context.session.add(cron_ref)
+        context.session.flush()
+    return make_cron_dict(cron_ref)
 
 # Update a cron 
 def cron_update(context, cron_id, values):
@@ -129,27 +129,25 @@ def cron_update(context, cron_id, values):
         cron.update(values)
         context.session.add(cron)
     return make_cron_dict(cron)
-# Device CRUD
 
-
-# Pool CRUD
-def make_pool_dict(data):
-    return {
-        'command': data['id'],
-        'name': data['name'],
-        'protocol': data['protocol'],
-        'lb_method': data['lb_method'],
-        'monitors': [m['id'] for m in data['monitors']],
-        'nodes': [n['id'] for n in data['nodes']],
-    }
-
-
-def create_pool(context, values):
+# Delete a cron
+def delete_cron(context, id):
     with context.session.begin(subtransactions=True):
-        pool = models.Pool()
-        pool.update(values)
-        context.session.add(pool)
-    return make_pool_dict(pool)
+        cron = get_cron_by_id(context, models.Cron, id)
+        context.session.delete(cron)
+
+def make_cron_dict(cron_resource):
+    return {
+        'command': cron_resource['id'],
+        'ensure': cron_resource['ensure'],
+        'environment': cron_resource['environment'],
+        'hour': cron_resource['hour'],
+        'minute':  cron_resource['minute'],
+        'month': cron_resource['nodes'],
+        'monthday':cron_resource['monthday'],
+        'weekday':cron_resource['weekday'],
+        'user':cron_resource['user'],
+    }
 
 
 def get_pool(context, id):
@@ -177,10 +175,6 @@ def update_pool(context, id, values):
     return make_pool_dict(pool)
 
 
-def delete_pool(context, id):
-    with context.session.begin(subtransactions=True):
-        pool = get_by_id(context, models.Pool, id)
-        context.session.delete(pool)
 
 
 # Monitor CRUD
