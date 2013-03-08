@@ -35,6 +35,10 @@ class DictBase(object):
     updated_at = sql.Column(sql.DateTime, onupdate=timeutils.utcnow)
     deleted_at = sql.Column(sql.DateTime)
     deleted = sql.Column(sql.Boolean, default=False)
+    id = sql.Column(sql.String(36), primary_key=True)
+    user_id = sql.Column(sql.String(255), nullable=False)
+    tenant_id = sql.Column(sql.String(255), nullable=False)
+    title = sql.Column(sql.String(255), default=None)
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
@@ -72,66 +76,89 @@ class Cron(BASE, DictBase):
     """Represents cron resource."""
 
     __tablename__ = 'crons'
-    id = sql.Column(sql.String(36), primary_key=True)
-    user_id = sql.Column(sql.String(255), nullable=False)
-    tenant_id = sql.Column(sql.String(255), nullable=False)
-    title = sql.Column(sql.String(255), default=None)
     command = sql.Column(sql.String(255), default=None)
-    ensure = sql.Column(sql.String(16), default='present')
+    ensure = sql.Column(sql.String(8), default='present')
     environment = sql.Column(sql.String(255), default=None)
     hour = sql.Column(sql.String(16), default=None)
     minute = sql.Column(sql.String(16), default=None)
-    month = sql.Column(sql.String(16), default=None)
-    monthday = sql.Column(sql.String(16), default=None)
-    weekday = sql.Column(sql.String(16), default=None)
+    month = sql.Column(sql.Integer(2), default=None)
+    monthday = sql.Column(sql.Integer(2), default=None)
+    weekday = sql.Column(sql.Integer(2), default=None)
     user = sql.Column(sql.String(32), default=None)
 
 
-class Device(BASE, DictBase):
-    """Represents a load balance device."""
+class Execs(BASE, DictBase):
+    """Represents exec resource."""
 
-    __tablename__ = 'devices'
-    tenant_id = sql.Column(sql.String(255), nullable=False)
-    id = sql.Column(sql.String(36), primary_key=True)
-    name = sql.Column(sql.String(255), default=None)
-    admin_state_up = sql.Column(sql.Boolean, default=True)
-
-
-class Pool(BASE, DictBase):
-    """Represents a server farm and lb method to use."""
-
-    __tablename__ = 'pools'
-    tenant_id = sql.Column(sql.String(255), nullable=False)
-    id = sql.Column(sql.String(36), primary_key=True)
-    name = sql.Column(sql.String(255), default=None)
-    protocol = sql.Column(sql.String(32), nullable=False)
-    lb_method = sql.Column(sql.String(32), nullable=False)
-    monitors = orm.relationship("Monitor", backref=orm.backref("pool"))
-    nodes = orm.relationship("Node", backref=orm.backref("pool"))
+    __tablename__ = 'execs'
+    create = sql.Column(sql.String(255),default=None)
+    cwd = sql.Column(sql.String(128),default=None)
+    environment = sql.Column(sql.String(255),default=None)
+    group = sql.Column(sql.String(16),default=None)
+    user = sql.Column(sql.String(32),default=None)
+    logoutput = sql.Column(sql.String(10),default=None)
+    onlyif = sql.Column(sql.String(500),default=None)
+    path = sql.Column(sql.String(255),default=None)
+    refresh = sql.Column(sql.String(255),default=None)
+    refreshonly = sql.Column(sql.Boolean,default=False)
+    unless  = sql.Column(sql.String(500),default=None)
 
 
-class Monitor(BASE, DictBase):
-    """Represents a healthy monitor configured on a pool."""
+class Files(BASE, DictBase):
+    """Represents file resource."""
 
-    __tablename__ = 'monitors'
-    pool_id = sql.Column(sql.String(36), sql.ForeignKey('pools.id'))
-    id = sql.Column(sql.String(36), primary_key=True)
-    type = sql.Column(sql.String(32), nullable=False)
-    timeout = sql.Column(sql.Integer, default=10000)   # 10 seconds
-    interval = sql.Column(sql.Integer, default=30000)  # 30 seconds
-    active_threshold = sql.Column(sql.Integer, default=5)
-    inactive_threshold = sql.Column(sql.Integer, default=2)
+    __tablename__ = 'files'
+    path = sql.Column(sql.String(255), default=None)
+    content = sql.Column(sql.String(500), default=None)
+    ensure = sql.Column(sql.String(16), default=None)
+    group = sql.Column(sql.String(16),default=None)
+    owner = sql.Column(sql.String(16),default=None)
+    mode = sql.Column(sql.String(8),default=None)
+    source = sql.Column(sql.String(255),default=None)
+    target = sql.Column(sql.String(255),default=None)
+    recurse = sql.Column(sql.String(8).default=None)
+    #group = orm.relationship("Monitor", backref=orm.backref("pool"))
 
 
-class Node(BASE, DictBase):
-    """Represents a service run on a server."""
+class Groups(BASE, DictBase):
+    """Represents group resource."""
 
-    __tablename__ = 'nodes'
-    tenant_id = sql.Column(sql.String(255), nullable=False)
-    pool_id = sql.Column(sql.String(36), sql.ForeignKey('pools.id'))
-    id = sql.Column(sql.String(36), primary_key=True)
-    address = sql.Column(sql.String(64), nullable=False)
-    port = sql.Column(sql.Integer, nullable=False)
-    weight = sql.Column(sql.Integer, default=1)
-    status = sql.Column(sql.String(32), nullable=True)
-    admin_state_up = sql.Column(sql.Boolean, default=True)
+    __tablename__ = 'groups'
+    #pool_id = sql.Column(sql.String(36), sql.ForeignKey('pools.id'))
+    name = sql.Column(sql.String(64), default=None)
+    members = sql.Column(sql.String(255), default=None)   
+    ensure = sql.Column(sql.String(16), default=None)  
+
+
+class Packages(BASE, DictBase):
+    """Represents package resource."""
+
+    __tablename__ = 'resources'
+    name = sql.Column(sql.String(64), default=None)
+    ensure = sql.Column(sql.String(16), default=None)
+    source = sql.Column(sql.String(128), default=True)
+
+class Services(BASE, DictBase):
+    """Represents service resource."""
+
+    __tablename__ = 'services'
+    enable = sql.Column(sql.String(8),default=None)
+    ensure = sql.Column(sql.String(16), default=None)
+    hasrestart = sql.Column(sql.Boolean(),default=False)
+    hasstatus = sql.Column(sql.Boolean(),default=Fasle)
+    name = sql.Column(sql.String(64), default=None)
+    path = sql.Column(sql.String(255), default=True)
+class User(BASE, DictBase):
+    """Represents user resource."""
+
+    __tablename__ = 'users'
+    name = sql.Column(sql.String(64), default=None)
+    ensure = sql.Column(sql.String(16), default=None)
+    gid = sql.Column(sql.String(64), default=None)
+    groups = sql.Column(sql.String(64),default=None)
+    home = sql.Column(sql.String(64),default=None)
+    managehome = sql.Column(sql.Boolean(),default=True)
+    password = sql.Column(sql.String(32),default=None)
+    shell = sql.Column(sql.String(32),default=None)
+    system = sql.Column(sql.boolean(),default=False)
+

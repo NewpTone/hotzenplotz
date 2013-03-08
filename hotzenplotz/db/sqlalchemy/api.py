@@ -88,7 +88,7 @@ def cron_get_all(context, filters=None):
     filters = filters or dict()
     return model_query(context, models.Cron).filter_by(**filters).all()
 
-# Get a cron
+# Get a cron by title
 def cron_get_by_title(context, title):
     result = model_query(context, models.Cron).filter_by(
         title=title).first()
@@ -96,14 +96,15 @@ def cron_get_by_title(context, title):
         raise exception.CronNotFoundByTitle(cron_title=title)
     return result
 
+# Get a cron bu Id
 def cron_get_by_id(context, id):
     result = model_query(context, models.Cron).filter_by(
         id=id).first()
     if not result:
         raise exception.CronNotFoundById(cron_id=id)
     return result
-# Create a cron
 
+# Create a cron
 def cron_create(context, values):
 
     try:
@@ -120,14 +121,21 @@ def cron_create(context, values):
     context.session.add(cron_ref)
     context.session.flush()
     return cron_ref
- 
+
+# Update a cron 
+def cron_update(context, cron_id, values):
+    with context.session.begin(subtransactions=True):
+        cron = get_by_id(context, models.cron, id)
+        cron.update(values)
+        context.session.add(cron)
+    return make_cron_dict(cron)
 # Device CRUD
 
 
 # Pool CRUD
 def make_pool_dict(data):
     return {
-        'id': data['id'],
+        'command': data['id'],
         'name': data['name'],
         'protocol': data['protocol'],
         'lb_method': data['lb_method'],
