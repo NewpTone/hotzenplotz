@@ -96,7 +96,7 @@ def cron_get_by_title(context, title):
         raise exception.CronNotFoundByTitle(cron_title=title)
     return result
 
-# Get a cron bu Id
+# Get a cron by Id
 def cron_get_by_id(context, id):
     result = model_query(context, models.Cron).filter_by(
         id=id).first()
@@ -125,7 +125,7 @@ def cron_create(context, values):
 # Update a cron 
 def cron_update(context, cron_id, values):
     with context.session.begin(subtransactions=True):
-        cron = get_by_id(context, models.cron, id)
+        cron = cron_get_by_id(context, models.Cron, id)
         cron.update(values)
         context.session.add(cron)
     return make_cron_dict(cron)
@@ -133,7 +133,7 @@ def cron_update(context, cron_id, values):
 # Delete a cron
 def delete_cron(context, id):
     with context.session.begin(subtransactions=True):
-        cron = get_cron_by_id(context, models.Cron, id)
+        cron = cron_get_by_id(context, models.Cron, id)
         context.session.delete(cron)
 
 def make_cron_dict(cron_resource):
