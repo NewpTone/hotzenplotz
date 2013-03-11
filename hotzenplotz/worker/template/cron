@@ -1,0 +1,29 @@
+cron { "{{cron_resource.title}}":
+    {% if cron_resource.command %}
+        command =>  "{{cron_resource.command}}"
+    {% endif %}
+    {% if cron_resource.ensure %}
+        ensure =>  "{{cron_resource.ensure}}"
+    {% endif %}
+    {% if cron_resource.environment %}
+        environment =>  "{{cron_resource.environment}}"
+    {% endif %}
+    {% if cron_resource.hour %}
+        hour =>  "{{cron_resource.hour}}"
+    {% endif %}
+    {% if cron_resource.minute %}
+        minute =>  "{{cron_resource.minute}}"
+    {% endif %}
+    {% if cron_resource.month %}
+        minute =>  "{{cron_resource.month}}"
+    {% endif %}
+    {% if cron_resource.monthday %}
+        monthday =>  "{{cron_resource.monthday}}"
+    {% endif %}
+    {% if cron_resource.weekday %}
+        weekday =>  "{{cron_resource.weekday}}"
+    {% endif %}
+    {% if cron_resource.user %}
+        user =>  "{{cron_resource.user}}"
+    {% endif %}
+     } 

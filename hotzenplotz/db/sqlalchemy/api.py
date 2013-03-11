@@ -137,7 +137,7 @@ def delete_cron(context, id):
 
 def make_cron_dict(cron_resource):
     return {
-        'command': cron_resource['id'],
+        'command': cron_resource['command'],
         'ensure': cron_resource['ensure'],
         'environment': cron_resource['environment'],
         'hour': cron_resource['hour'],
