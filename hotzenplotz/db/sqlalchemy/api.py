@@ -77,14 +77,13 @@ def apply_filters(query, model, filters=None):
                 query = query.filter(column.in_(value))
     return query
 
-
 def get_by_id(context, model, id):
     query = model_query(context, model)
     return query.filter(model.id == id).one()
 # Crons CRUD
 # Get all crons
 @require_admin_context
-def cron_get_all(context, filters=None):
+def crons_get_all(context, filters=None):
     filters = filters or dict()
     return model_query(context, models.Cron).filter_by(**filters).all()
 

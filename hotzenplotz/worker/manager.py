@@ -2,7 +2,7 @@
 #
 # Copyright 2013 Ustack Corporation
 # All Rights Reserved.
-# Author: Jiajun Liu <iamljj@gmail.com>
+# Author: Yu xingchao <yuxcer@gmail.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -19,22 +19,24 @@
 import eventlet
 import zmq
 
-from nozzle.openstack.common import jsonutils
-from nozzle.openstack.common import log as logging
+from hotzenplotz.openstack.common import jsonutils
+from hotzenplotz.openstack.common import log as logging
 
-from nozzle import db
-from nozzle import manager
-from nozzle.common import context
-from nozzle.common import flags
-from nozzle.common import utils
-from nozzle.server import api
-from nozzle.server import state
+from hotzenplotz import db
+from hotzenplotz import manager
+from hotzenplotz.common import context
+from hotzenplotz.common import flags
+from hotzenplotz.common import utils
+from hotzenplotz.server import api
+from hotzenplotz.server import state
 
 FLAGS = flags.FLAGS
 LOG = logging.getLogger(__name__)
 
 
 def client_routine(*args, **kwargs):
+    """Handler api and client's request
+    """
     LOG.info('hotzenplotz client starting...')
     handler = kwargs['handler']
 
@@ -76,7 +78,7 @@ def client_routine(*args, **kwargs):
 
 
 def worker_routine(*args, **kwargs):
-    LOG.info('nozzle worker starting...')
+    LOG.info('hotzenplotz worker starting...')
 
     feedback = kwargs['feedback']
     poller = zmq.Poller()
@@ -97,49 +99,6 @@ def worker_routine(*args, **kwargs):
             except Exception as exp:
                 LOG.exception(str(exp))
                 continue
-
-
-def checker_routine(*args, **kwargs):
-    LOG.info('nozzle checker starting...')
-
-    broadcast = kwargs['broadcast']
-    states = [state.CREATING, state.UPDATING, state.DELETING]
-    while True:
-        eventlet.sleep(6)
-        msg_type = 'lb'
-        msg_uuid = utils.str_uuid()
-        try:
-            ctxt = context.get_admin_context()
-            all_load_balancers = db.load_balancer_get_all(ctxt)
-            transient_load_balancers = filter(lambda x: x.state in states,
-                                              all_load_balancers)
-            for load_balancer_ref in transient_load_balancers:
-                try:
-                    result = dict()
-                    message = dict()
-                    if load_balancer_ref.state == state.CREATING:
-                        message['cmd'] = 'create_lb'
-                        result = api.format_msg_to_worker(load_balancer_ref)
-                    elif load_balancer_ref.state == state.UPDATING:
-                        message['cmd'] = 'update_lb'
-                        result = api.format_msg_to_worker(load_balancer_ref)
-                    elif load_balancer_ref.state == state.DELETING:
-                        message['cmd'] = 'delete_lb'
-                        result['user_id'] = load_balancer_ref['user_id']
-                        result['tenant_id'] = load_balancer_ref['project_id']
-                        result['uuid'] = load_balancer_ref['uuid']
-                        result['protocol'] = load_balancer_ref['protocol']
-                    message['args'] = result
-                    request_msg = jsonutils.dumps(message)
-                    LOG.debug(">>>>>>> worker: %s" % request_msg)
-                    broadcast.send_multipart([msg_type, msg_uuid, request_msg])
-                except Exception as exp:
-                    LOG.exception(str(exp))
-                    continue
-        except Exception as exp:
-            LOG.exception(str(exp))
-            continue
-
 
 class ServerManager(manager.Manager):
 
@@ -168,7 +127,6 @@ class ServerManager(manager.Manager):
 
         self.pool.spawn(client_routine, **args)
         self.pool.spawn(worker_routine, **args)
-        self.pool.spawn(checker_routine, **args)
 
     def wait(self):
         self.pool.waitall()
