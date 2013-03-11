@@ -26,18 +26,7 @@ from hotzenplotz import manager
 from hotzenplotz.common import exception
 from hotzenplotz.common import flags
 from hotzenplotz.common import utils
-from hotzenplotz.worker.driver import haproxy
-from hotzenplotz.worker.driver import nginx
-
-
-worker_opts = [
-    cfg.StrOpt('service_interface',
-               default='lo',
-               help="listen on which interface to provide service."),
-]
-
-FLAGS = flags.FLAGS
-FLAGS.register_opts(worker_opts, 'worker')
+from hotzenplotz.worker.driver import cron
 
 LOG = logging.getLogger(__name__)
 
@@ -63,16 +52,12 @@ class WorkerManager(manager.Manager):
         handler.bind("tcp://%s:%s" % (FLAGS.server_listen,
                                       FLAGS.server_listen_port))
 
-        self.ha_configurer = haproxy.HaproxyConfigurer()
-        self.ngx_configurer = nginx.NginxProxyConfigurer()
-
-        self.binding_ip(self.ha_configurer._bind_ip)
-        self.binding_ip(self.ngx_configurer._bind_ip)
+        self.cronhandler = cron.CronHandler()
 
     def wait(self):
-
+        
         LOG.info('hotzenplotz worker starting...')
-
+        expect_keys=['cron_resource']
         while True:
             socks = dict(self.poller.poll())
             if socks.get(self.broadcast) == zmq.POLLIN:
@@ -82,19 +67,19 @@ class WorkerManager(manager.Manager):
 
                 response_msg = {'code': 200, 'message': 'OK'}
                 # check input message
-                if 'cmd' not in message or 'args' not in message:
-                    LOG.warn("Error. 'cmd' or 'args' not in message")
+                if not message.keys() or (message.keys()[0] not in expect_keys):
+                    LOG.warn("Error. No resource type in message")
                     response_msg['code'] = 500
-                    response_msg['message'] = "missing 'cmd' or 'args' field"
+                    response_msg['message'] = "missing resource type field"
 
                     self.feedback.send_multipart([msg_type, msg_id,
                                                   jsonutils.dumps(
                                                       response_msg)])
                     break
 
-                if message['args']['protocol'] == 'http':
+                if message['cron_resource']:
                     try:
-                        self.ngx_configurer.do_config(message)
+                        self.cronhandler.do_config(message)
                     except exception.NginxConfigureError, e:
                         response_msg['code'] = 500
                         response_msg['message'] = str(e)

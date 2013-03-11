@@ -1,6 +1,7 @@
 import os
 import datetime
 
+from jinja2 import Environment,PackageLoader,TemplateNotFound
 from hotzenplotz.openstack.common import cfg
 from hotzenplotz.openstack.common import log as logging
 
@@ -16,27 +17,10 @@ class CronHandler(object):
     """Handler Cron Resource
     """
 
-    _bind_ip = []
-    listen_port_min = None
-    listen_port_max = None
-
-    cfg_backup_dir = None
-
     def __init__(self, **kwargs):
-        for ip in FLAGS.haproxy.listen:
-            if validate.is_ipv4(ip):
-                self._bind_ip.append(ip)
-        listen_port_range = FLAGS.haproxy.listen_port_range.split(',')
-        self.listen_port_min = int(listen_port_range[0])
-        self.listen_port_max = int(listen_port_range[1])
-
-        self.cfg_backup_dir = FLAGS.haproxy.configuration_backup_dir
-
-        if not os.path.exists(self.cfg_backup_dir):
-            strerror = ("configuration_backup_dir(dir=%s) does not exist" %
-                        self.cfg_backup_dir)
-            LOG.error(strerror)
-            raise Exception(strerror)
+        env = Environment(loader=PackageLoader('hotzenplotz.worker','templates'))
+        self.template =  env.get_template('cron')
+        self.dir_path = dir_path
 
     @utils.synchronized('haproxy')
     def do_config(self, request):
@@ -47,15 +31,15 @@ class CronHandler(object):
             raise exception.HaproxyConfigureError(explanation=str(e))
 
         cmd = request['cmd']
-        msg = request['args']
+        msg = request['cron_resource']
 
-        if cmd == 'create_lb':
+        if cmd == 'create_cron':
             try:
-                self._create_lb(msg)
-            except exception.HaproxyCreateError as e:
+                self._create_cron(msg)
+            except exception.CronCreateError as e:
                 raise exception.HaproxyConfigureError(explanation=str(e))
 
-        elif cmd == 'delete_lb':
+        elif cmd == 'delete_cron':
             try:
                 self._delete_lb(msg)
             except exception.HaproxyDeleteError as e:
@@ -67,34 +51,31 @@ class CronHandler(object):
             except exception.HaproxyUpdateError as e:
                 raise exception.HaproxyConfigureError(explanation=str(e))
 
-    def _create_lb(self, msg):
-        LOG.debug("Creating the haproxy load "
-                  "balancer for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['uuid'], msg['user_id'], msg['tenant_id']))
+    def _create_cron(self, msg,syntax_check=False):
+        #LOG.debug("Creating a Cron for NAME:%s USER: %s PROJECT:%s" %
+        #          (msg['id'], msg['user_id'], msg['tenant_id']))
 
         try:
-            new_cfg_path = self._create_lb_haproxy_cfg(msg)
-        except exception.HaproxyCreateCfgError as e:
-            raise exception.HaproxyCreateError(explanation=str(e))
-
+            output = self.template.render(cron_resource=msg)
+        except TemplateNotFound as e:
+            raise TemplateNotFound(str(e))
         try:
-            self._test_haproxy_config(new_cfg_path)
-        except exception.ProcessExecutionError as e:
-            raise exception.HaproxyCreateError(explanation=str(e))
+            if not self.dir_path:
+                self.dir_path = '/etc/puppet/modules/cron/'
+            cron_name = msg['title']
+            file_path = self.dir_path + cron_name 
+            if not path.exists(file_path):
+            with open(file_path,'a') as f:
+                f.write(output)
+        except exception.CronCreateError as e:
+            raise exception.CronCreateError(explanation=str(e))
+        if syntax_check:
+            try:
+                self._test_syntax(file_path)
+            except exception.ProcessExecutionError as e:
+                raise exception.CronCreateError(explanation=str(e))
 
-        rc, backup_path = self._backup_original_cfg()
-        if rc != 0:
-            raise exception.HaproxyCreateError(explanation=backup_path)
-
-        rc, strerror = self._replace_original_cfg_with_new(new_cfg_path)
-        if rc != 0:
-            raise exception.HaproxyCreateError(explanation=strerror)
-
-        if self._reload_haproxy_cfg(backup_path) != 0:
-            e = 'Failed to reload haproxy'
-            raise exception.HaproxyCreateError(explanation=e)
-
-        LOG.debug("Created the new load balancer successfully")
+        LOG.debug("Created the new cron successfully")
 
     def _delete_lb(self, msg):
         LOG.debug("Deleting the haproxy load "
@@ -146,18 +127,6 @@ class CronHandler(object):
         try:
             self._test_haproxy_config(new_cfg_path)
         except exception.ProcessExecutionError as e:
-            raise exception.HaproxyUpdateError(explanation=str(e))
-
-        rc, backup_path = self._backup_original_cfg()
-        if rc != 0:
-            raise exception.HaproxyUpdateError(explanation=backup_path)
-
-        rc, strerror = self._replace_original_cfg_with_new(new_cfg_path)
-        if rc != 0:
-            raise exception.HaproxyUpdateError(explanation=strerror)
-
-        if self._reload_haproxy_cfg(backup_path) != 0:
-            e = 'Failed to reload haproxy'
             raise exception.HaproxyUpdateError(explanation=str(e))
 
         LOG.debug("Updated the new load balancer successfully")
@@ -340,14 +309,14 @@ class CronHandler(object):
             raise
         return pid
 
-    def _test_haproxy_config(self, cfile_path):
-        LOG.info('Testing the new haproxy configuration file')
-        cmd = "haproxy -c -f %s" % cfile_path
+    def _test_syntax(self, cfile_path):
+        LOG.info('Testing the new puppet configuration file')
+        cmd = "puppet parser validate %s" % cfile_path
 
         try:
             utils.execute(cmd)
         except exception.ProcessExecutionError as e:
-            LOG.warn('Did not pass the new haproxy configuration test: %s', e)
+            LOG.warn('Did not pass the configuration syntax test: %s', e)
             raise
 
     def _reload_haproxy_cfg(self, backup_path):
