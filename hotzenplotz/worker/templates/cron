@@ -15,7 +15,7 @@ cron { "{{cron_resource.title}}":
         minute =>  "{{cron_resource.minute}}"
     {% endif %}
     {% if cron_resource.month %}
-        minute =>  "{{cron_resource.month}}"
+        month =>  "{{cron_resource.month}}"
     {% endif %}
     {% if cron_resource.monthday %}
         monthday =>  "{{cron_resource.monthday}}"
