@@ -19,6 +19,7 @@
 Controller framework
 """
 
+from hotzenplotz.openstack.common import cfg
 from hotzenplotz.openstack.common import log as logging
 from hotzenplotz.openstack.common import wsgi
 
@@ -44,12 +45,12 @@ class ZmqClient(object):
 
 class Controller(object):
 
-    def __init__(self, RESOURCE_NAME=None, ATTRIBUTE_MAP=None, METHOD_MAP=None):
-        self.resource_name = RESOURCE_NAME
-        self.attribute_map = ATTRIBUTE_MAP
-        self.method_map    = METHOD_MAP 
-        self.client = ZmqClient(host=FLAGS.server_listen,
-                              port=FLAGS.server_listen_port)
+    def __init__(self, resource_name=None, attribute_map=None, method_map=None):
+        self.resource_name = resource_name
+        self.attribute_map = attribute_map
+        self.method_map    = method_map 
+        #self.client = ZmqClient(host=cfg.CONF.server_listen,
+        #                      port=cfg.CONF.server_listen_port)
         super(Controller, self).__init__()
 
     def verify_request(self, context, req, body):

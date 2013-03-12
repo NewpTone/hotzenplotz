@@ -36,8 +36,8 @@ class DictBase(object):
     deleted_at = sql.Column(sql.DateTime)
     deleted = sql.Column(sql.Boolean, default=False)
     id = sql.Column(sql.String(36), primary_key=True)
-    user_id = sql.Column(sql.String(255), nullable=False)
-    tenant_id = sql.Column(sql.String(255), nullable=False)
+    user_id = sql.Column(sql.String(255), nullable=True)
+    tenant_id = sql.Column(sql.String(255), nullable=True)
     title = sql.Column(sql.String(255), default=None)
 
     def __setitem__(self, key, value):
@@ -116,7 +116,7 @@ class Files(BASE, DictBase):
     mode = sql.Column(sql.String(8),default=None)
     source = sql.Column(sql.String(255),default=None)
     target = sql.Column(sql.String(255),default=None)
-    recurse = sql.Column(sql.String(8).default=None)
+    recurse = sql.Column(sql.String(8),default=None)
     #group = orm.relationship("Monitor", backref=orm.backref("pool"))
 
 
@@ -145,7 +145,7 @@ class Services(BASE, DictBase):
     enable = sql.Column(sql.String(8),default=None)
     ensure = sql.Column(sql.String(16), default=None)
     hasrestart = sql.Column(sql.Boolean(),default=False)
-    hasstatus = sql.Column(sql.Boolean(),default=Fasle)
+    hasstatus = sql.Column(sql.Boolean(),default=False)
     name = sql.Column(sql.String(64), default=None)
     path = sql.Column(sql.String(255), default=True)
 class User(BASE, DictBase):
@@ -160,5 +160,5 @@ class User(BASE, DictBase):
     managehome = sql.Column(sql.Boolean(),default=True)
     password = sql.Column(sql.String(32),default=None)
     shell = sql.Column(sql.String(32),default=None)
-    system = sql.Column(sql.boolean(),default=False)
+    system = sql.Column(sql.Boolean(),default=False)
 

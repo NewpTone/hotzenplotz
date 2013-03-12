@@ -44,7 +44,7 @@ core_opts = [
                default='127.0.0.1',
                help='IP address for hotzenplotz API to listen.'),
     cfg.IntOpt('api_listen_port',
-               default=5556,
+               default=8664,
                help='Port for hotzenplotz API to listen.'),
 ]
 

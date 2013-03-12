@@ -116,12 +116,14 @@ method_map = {
 RESOURCE_NAME = 'cron_resource'
 class Controller(controller.Controller):
 
-    def __init__(self,resource_name, attribute_map, method_map):
-        controller.Controller.__init__( self,
-                                        resource_name = RESOURCE_NAME,
-                                        attribute_map = ATTRIBUTE_MAP,
-                                        method_map    = METHOD_MAP
-                                      )                                        
+    def __init__(self, resource_name=None, attribute_map=None, method_map=None):
+        if resource_name is None:
+            resource_name = RESOURCE_NAME
+        super(Controller, self).__init__(self,
+                                         #resource_name=resource_name,
+                                         attribute_map=cron_attr_map,
+                                         method_map=method_map)
 
-    def create_resource(): 
-        return wsgi.Resource(Controller())
+
+def create_resource(): 
+    return wsgi.Resource(Controller())

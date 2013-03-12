@@ -2,7 +2,7 @@
 #
 # Copyright 2012 xxxx Corporation
 # All Rights Reserved.
-# Author: Jiajun Liu <iamljj@gmail.com>
+# Author: Yu xingchao <yuxcer@gmail.com>
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -21,14 +21,15 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from faucet.common import config
-from faucet import service
+from hotzenplotz.common import config
+from hotzenplotz import service
 
 if __name__ == '__main__':
     eventlet.monkey_patch()
     config.parse_args()
     config.setup_logging(config)
 
-    service = service.WSGIService("faucet")
+    import pdb; pdb.set_trace()
+    service = service.WSGIService("hotzenplotz")
     service.start()
     service.wait()

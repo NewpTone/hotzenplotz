@@ -22,8 +22,8 @@ from hotzenplotz.openstack.common import wsgi
 from hotzenplotz.openstack.common import log as logging
 
 from hotzenplotz.api.resource import cron
-from hotzenplotz.api.resource import Exec
-from hotzenplotz.api.resource import pool
+#from hotzenplotz.api.resource import Exec
+#from hotzenplotz.api.resource import pool
 
 
 LOG = logging.getLogger(__name__)
@@ -36,6 +36,7 @@ class APIRouter(wsgi.Router):
 
     @classmethod
     def factory(cls, global_config, **local_config):
+        import pdb; pdb.set_trace()
         return cls()
 
     def __init__(self):
@@ -71,25 +72,25 @@ class APIRouter(wsgi.Router):
                        conditions=dict(method=['DELETE']))
       
         #Exec Operations
-        self.controller['exec'] = Exec.create_resource()
-        mapper.connect('/execs',
-                       controller=self.controller['exec'],
-                       action='index',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/execs/{exec_id}',
-                       controller=self.controller['exec'],
-                       action='show',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/execs',
-                       controller=self.controller['exec'],
-                       action='create',
-                       conditions=dict(method=['POST']))
-        mapper.connect('/execs/{exec_id}',
-                       controller=self.controller['exec'],
-                       action='update',
-                       conditions=dict(method=['PUT']))
-        mapper.connect('/execs/{exec_id}',
-                       controller=self.controller['exec'],
-                       action='delete',
-                       conditions=dict(method=['DELETE']))
+#        self.controller['exec'] = Exec.create_resource()
+#        mapper.connect('/execs',
+#                       controller=self.controller['exec'],
+#                       action='index',
+#                       conditions=dict(method=['GET']))
+#        mapper.connect('/execs/{exec_id}',
+#                       controller=self.controller['exec'],
+#                       action='show',
+#                       conditions=dict(method=['GET']))
+#        mapper.connect('/execs',
+#                       controller=self.controller['exec'],
+#                       action='create',
+#                       conditions=dict(method=['POST']))
+#        mapper.connect('/execs/{exec_id}',
+#                       controller=self.controller['exec'],
+#                       action='update',
+#                       conditions=dict(method=['PUT']))
+#        mapper.connect('/execs/{exec_id}',
+#                       controller=self.controller['exec'],
+#                       action='delete',
+#                       conditions=dict(method=['DELETE']))
         #import pdb; pdb.set_trace()
