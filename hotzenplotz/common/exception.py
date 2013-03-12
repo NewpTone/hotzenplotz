@@ -240,44 +240,44 @@ class NginxConfigureError(ConfigureError):
     message = _("Could not configure nginx: %(explanation)s")
 
 
-class NginxCreateProxyError(NginxConfigureError):
-    message = _("Could not create the nginx proxy: %(explanation)s")
+class NginxCreateError(NginxConfigureError):
+    message = _("Could not create the nginx : %(explanation)s")
 
 
-class NginxUpdateProxyError(NginxConfigureError):
-    message = _("Could not update the nginx proxy: %(explanation)s")
+class NginxUpdateError(NginxConfigureError):
+    message = _("Could not update the nginx : %(explanation)s")
 
 
-class NginxDeleteProxyError(NginxConfigureError):
-    message = _("Could not delete the nginx proxy: %(explanation)s")
+class NginxDeleteError(NginxConfigureError):
+    message = _("Could not delete the nginx : %(explanation)s")
 
 
-class HaproxyConfigureError(ConfigureError):
-    message = _("Could not configure haproxy: %(explanation)s")
+class CronConfigureError(ConfigureError):
+    message = _("Could not configure Cron: %(explanation)s")
 
 
-class HaproxyCreateError(HaproxyConfigureError):
-    message = _("Could not create the haproxy proxy: %(explanation)s")
+class CronCreateError(CronConfigureError):
+    message = _("Could not create the Cron : %(explanation)s")
 
 
-class HaproxyCreateCfgError(HaproxyConfigureError):
-    message = _("Could not create the haproxy proxy "
+class CronCreateCfgError(CronConfigureError):
+    message = _("Could not create the Cron  "
                 " configuration: %(explanation)s")
 
 
-class HaproxyUpdateError(HaproxyConfigureError):
-    message = _("Could not update the haproxy proxy: %(explanation)s")
+class CronUpdateError(CronConfigureError):
+    message = _("Could not update the Cron : %(explanation)s")
 
 
-class HaproxyDeleteError(HaproxyConfigureError):
-    message = "Could not delete the haproxy proxy: %(explanation)s"
+class CronDeleteError(CronConfigureError):
+    message = "Could not delete the Cron : %(explanation)s"
 
 
-class HaproxyLBExists(Invalid):
+class CronLBExists(Invalid):
     message = _("The supplied cron (%(name)s) "
                 "already exists, it is expected not to exist.")
 
 
-class HaproxyLBNotExists(Invalid):
+class CronLBNotExists(Invalid):
     message = _("The supplied cron (%(name)s) "
                 "does not exists, it is expected to exist.")

@@ -80,10 +80,10 @@ class WorkerManager(manager.Manager):
                 if message['cron_resource']:
                     try:
                         self.cronhandler.do_config(message)
-                    except exception.NginxConfigureError, e:
+                    except exception.CronError, e:
                         response_msg['code'] = 500
                         response_msg['message'] = str(e)
-                elif message['args']['protocol'] == 'tcp':
+                elif message['']:
                     try:
                         self.ha_configurer.do_config(message)
                     except exception.HaproxyConfigureError, e:

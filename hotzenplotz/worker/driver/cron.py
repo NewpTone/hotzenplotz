@@ -28,7 +28,7 @@ class CronHandler(object):
             self._validate_request(request)
         except exception.BadRequest as e:
             LOG.warn('Bad request: %s' % e)
-            raise exception.HaproxyConfigureError(explanation=str(e))
+            raise exception.CronConfigureError(explanation=str(e))
 
         cmd = request['cmd']
         msg = request['cron_resource']
@@ -37,23 +37,21 @@ class CronHandler(object):
             try:
                 self._create_cron(msg)
             except exception.CronCreateError as e:
-                raise exception.HaproxyConfigureError(explanation=str(e))
+                raise exception.CronConfigureError(explanation=str(e))
 
         elif cmd == 'delete_cron':
             try:
-                self._delete_lb(msg)
+                self._delete_cron(msg)
             except exception.HaproxyDeleteError as e:
-                raise exception.HaproxyConfigureError(explanation=str(e))
+                raise exception.CronConfigureError(explanation=str(e))
 
-        elif cmd == 'update_lb':
+        elif cmd == 'update_cron':
             try:
-                self._update_lb(msg)
-            except exception.HaproxyUpdateError as e:
-                raise exception.HaproxyConfigureError(explanation=str(e))
+                self._update_cron(msg)
+            except exception.CronUpdateError as e:
+                raise exception.CronConfigureError(explanation=str(e))
 
     def _create_cron(self, msg,syntax_check=False):
-        #LOG.debug("Creating a Cron for NAME:%s USER: %s PROJECT:%s" %
-        #          (msg['id'], msg['user_id'], msg['tenant_id']))
 
         try:
             output = self.template.render(cron_resource=msg)
@@ -77,10 +75,9 @@ class CronHandler(object):
 
         LOG.debug("Created the new cron successfully")
 
-    def _delete_lb(self, msg):
-        LOG.debug("Deleting the haproxy load "
-                  "balancer for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['uuid'], msg['user_id'], msg['tenant_id']))
+    def _delete_cron(self, msg):
+        LOG.debug("Deleting cron  for NAME:%s USER: %s PROJECT:%s" %
+                  (msg['id'], msg['user_id'], msg['tenant_id']))
         try:
             new_cfg_path = self._create_lb_deleted_haproxy_cfg(msg)
         except exception.HaproxyLBNotExists as e:
