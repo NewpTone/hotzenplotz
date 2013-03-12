@@ -74,55 +74,6 @@ def format_msg_to_client(load_balancer_ref):
     result['http_server_names'] = http_server_names
     return result
 
-
-def format_msg_to_worker(load_balancer_ref):
-    result = dict()
-    result['user_id'] = load_balancer_ref.user_id
-    result['tenant_id'] = load_balancer_ref.project_id
-    result['uuid'] = load_balancer_ref.uuid
-    result['protocol'] = load_balancer_ref.protocol
-    expect_keys = [
-        'dns_prefix', 'instance_port', 'listen_port',
-    ]
-    for key in expect_keys:
-        result[key] = getattr(load_balancer_ref, key)
-    expect_configs = [
-        'balancing_method',
-        'health_check_timeout_ms',
-        'health_check_interval_ms',
-        'health_check_target_path',
-        'health_check_healthy_threshold',
-        'health_check_unhealthy_threshold',
-    ]
-    for key in expect_configs:
-        result[key] = getattr(load_balancer_ref.config, key)
-
-    instance_uuids = map(lambda x: x['instance_uuid'],
-                         load_balancer_ref.instances)
-    http_server_names = map(lambda x: x['name'],
-                            load_balancer_ref.domains)
-    dns_names = []
-    protocol = load_balancer_ref.protocol
-    prefix = load_balancer_ref.dns_prefix
-    postfixs = []
-    if protocol == 'http':
-        postfixs = FLAGS.http_postfixs
-    elif protocol == 'tcp':
-        postfixs = FLAGS.tcp_postfixs
-    for postfix in postfixs:
-        dns_name = '%s%s' % (prefix, postfix)
-        dns_names.append(dns_name)
-    instance_ips = []
-    for uuid in instance_uuids:
-        instance_ips.append(utils.get_fixed_ip_by_instance_uuid(uuid))
-
-    result['dns_names'] = dns_names
-    result['instance_ips'] = instance_ips
-    result['instance_uuids'] = instance_uuids
-    result['http_server_names'] = http_server_names
-    return result
-
-
 def get_msg_to_worker(context, method, **kwargs):
     result = dict()
     message = dict()
@@ -161,20 +112,6 @@ def notify(context, load_balancer_ref, event):
     }
     notifier.notify(context, 'loadbalancer', event, notifier.INFO, payload)
 
-
-def create_load_balancer(context, **kwargs):
-    try:
-        module = protocol.get_protocol_module(kwargs['protocol'])
-        module_func = getattr(module, 'create_load_balancer')
-        result = module_func(context, **kwargs)
-        uuid = result['data']['uuid']
-        load_balancer_ref = db.load_balancer_get_by_uuid(context, uuid)
-        notify(context, load_balancer_ref, 'loadbalancer.create.start')
-        result = format_msg_to_client(load_balancer_ref)
-    except Exception, exp:
-        raise exception.CreateLoadBalancerFailed(msg=str(exp))
-
-    return {'data': result}
 
 
 def create_for_instance(context, **kwargs):

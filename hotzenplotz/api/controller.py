@@ -76,16 +76,16 @@ class Controller(object):
         """Return detailed information about the requested entity"""
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
-        zmq_args = { 
-            'method': self.method_map['show'],
-            'args': {
+        method = self.method_map['show'],
+        args = {
                 'user_id': context.user_id,
                 'tenant_id': context.tenant_id,
-                'uuid': id, 
-            },  
-        }   
-        LOG.debug(zmq_args)
-        result = self.client.call(zmq_args)
+                'id': id, 
+               }  
+        LOG.debug(args)
+        ctxt = context.get_context(**args)
+        method_func = getattr(api, method)
+        result = method_func(ctxt, **args)
         return result
 
     def create(self, req, body=None, **kwargs):
