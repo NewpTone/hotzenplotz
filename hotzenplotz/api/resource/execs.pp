@@ -25,7 +25,7 @@ from hotzenplotz.api import validator
 
 LOG = logging.getLogger(__name__)
 
-cron_attr_map = {
+attr_map = {
     'id': {
         'is_visible': True,
         'is_optional':False,
@@ -106,29 +106,21 @@ cron_attr_map = {
 }
 
 method_map = {
-    'index':  'get_all_crons',
-    'show':   'get_cron',
-    'create': 'delete_cron',
-    'update': 'update_cron',
-    'delete': 'delete_cron',
+    'index':  'get_all_execs',
+    'show':   'get_exec',
+    'create': 'delete_exec',
+    'update': 'update_exec',
+    'delete': 'delete_exec',
     }
+
+resource_name = 'exec_resource'
+
 
 class Controller(controller.Controller):
 
-    RESOURCE_NAME = 'cron_resource'
+    RESOURCE_NAME = resource_name
     METHOD_MAP = method_map
-    ATTRIBUTE_MAP = cron_attr_map
-
-    #def __init__(self, resource_name=None, attribute_map=None, method_map=None):
-#    def __init__(self):
-#        if resource_name is None:
-#            resource_name = RESOURCE_NAME
-#        if method_map is None:
-#            method_map = me
-#        super(Controller, self).__init__(self,
-#                                         #resource_name=resource_name,
-#                                         attribute_map=cron_attr_map,
-#                                         method_map=method_map)
+    ATTRIBUTE_MAP = attr_map
 
 
 def create_resource(): 
