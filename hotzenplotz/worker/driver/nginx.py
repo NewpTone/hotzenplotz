@@ -115,7 +115,7 @@ class NginxProxyConfigurer(object):
     def _create_lb(self, msg):
         LOG.debug("Creating the nginx load "
                   "balancer for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['uuid'], msg['user_id'], msg['tenant_id']))
+                  (msg['uuid'], msg['user_id'], msg['project_id']))
         try:
             self._create_http_ngx_cfg(msg)
         except exception.NginxConfFileExists as e:
@@ -148,7 +148,7 @@ class NginxProxyConfigurer(object):
     def _delete_lb(self, msg):
         LOG.debug("Deleting the nginx load "
                   "balancer for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['uuid'], msg['user_id'], msg['tenant_id']))
+                  (msg['uuid'], msg['user_id'], msg['project_id']))
 
         try:
             self._delete_http_ngx_cfg(msg)
@@ -165,7 +165,7 @@ class NginxProxyConfigurer(object):
     def _update_lb(self, msg):
         LOG.debug("Updating the nginx load "
                   "balancer for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['uuid'], msg['user_id'], msg['tenant_id']))
+                  (msg['uuid'], msg['user_id'], msg['project_id']))
 
         try:
             self._delete_http_ngx_cfg(msg)
@@ -233,7 +233,7 @@ class NginxProxyConfigurer(object):
         return self._upstream_name(msg)
 
     def _upstream_name(self, msg):
-        # TODO(wenjianhn): base64 msg['user_id'], msg['tenant_id'],
+        # TODO(wenjianhn): base64 msg['user_id'], msg['project_id'],
         # msg['uuid']
         ngx_upstream_name = "%s" % msg['uuid']
 

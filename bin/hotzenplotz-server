@@ -29,7 +29,7 @@ if __name__ == '__main__':
     config.parse_args()
     config.setup_logging(config)
 
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     service = service.WSGIService("hotzenplotz")
     service.start()
     service.wait()

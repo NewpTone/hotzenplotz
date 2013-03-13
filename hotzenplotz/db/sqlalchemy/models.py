@@ -35,9 +35,9 @@ class DictBase(object):
     updated_at = sql.Column(sql.DateTime, onupdate=timeutils.utcnow)
     deleted_at = sql.Column(sql.DateTime)
     deleted = sql.Column(sql.Boolean, default=False)
-    id = sql.Column(sql.String(36), primary_key=True)
+    id = sql.Column(sql.Integer, primary_key=True)
     user_id = sql.Column(sql.String(255), nullable=True)
-    tenant_id = sql.Column(sql.String(255), nullable=True)
+    project_id = sql.Column(sql.String(255), nullable=True)
     title = sql.Column(sql.String(255), default=None)
 
     def __setitem__(self, key, value):
@@ -70,6 +70,9 @@ class DictBase(object):
                        if not k[0] == '_'])
         local.update(joined)
         return local.iteritems()
+
+    def to_dict(self):
+        return dict(self.iteritems())
 
 
 class Cron(BASE, DictBase):

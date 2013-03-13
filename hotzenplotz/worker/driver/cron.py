@@ -77,7 +77,7 @@ class CronHandler(object):
 
     def _delete_cron(self, msg):
         LOG.debug("Deleting cron  for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['id'], msg['user_id'], msg['tenant_id']))
+                  (msg['id'], msg['user_id'], msg['project_id']))
         try:
             new_cfg_path = self._create_lb_deleted_haproxy_cfg(msg)
         except exception.HaproxyLBNotExists as e:
@@ -107,7 +107,7 @@ class CronHandler(object):
     def _update_lb(self, msg):
         LOG.debug("Updating the haproxy load "
                   "balancer for NAME:%s USER: %s PROJECT:%s" %
-                  (msg['uuid'], msg['user_id'], msg['tenant_id']))
+                  (msg['uuid'], msg['user_id'], msg['project_id']))
 
         try:
             lb_deleted_cfg_path = self._create_lb_deleted_haproxy_cfg(msg)
@@ -133,7 +133,7 @@ class CronHandler(object):
 
     def _get_lb_name(self, msg):
         # TODO(wenjianhn): utf-8 support, base64
-        ##return "%s_%s" % (msg['tenant_id'],
+        ##return "%s_%s" % (msg['project_id'],
         return "%s" % msg['uuid']
 
     def _create_haproxy_lb_server_directive(self, msg):

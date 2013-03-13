@@ -63,8 +63,8 @@ def model_query(context, model, **kwargs):
     elif read_deleted == 'only':
         query = query.filter_by(deleted=True)
 
-    if not context.is_admin and hasattr(model, 'tenant_id'):
-        query = query.filter_by(tenant_id=context.tenant_id)
+    if not context.is_admin and hasattr(model, 'project_id'):
+        query = query.filter_by(project_id=context.project_id)
 
     return query
 

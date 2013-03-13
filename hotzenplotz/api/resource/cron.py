@@ -113,16 +113,22 @@ method_map = {
     'delete': 'delete_cron',
     }
 
-RESOURCE_NAME = 'cron_resource'
 class Controller(controller.Controller):
 
-    def __init__(self, resource_name=None, attribute_map=None, method_map=None):
-        if resource_name is None:
-            resource_name = RESOURCE_NAME
-        super(Controller, self).__init__(self,
-                                         #resource_name=resource_name,
-                                         attribute_map=cron_attr_map,
-                                         method_map=method_map)
+    RESOURCE_NAME = 'cron_resource'
+    METHOD_MAP = method_map
+    ATTRIBUTE_MAP = cron_attr_map
+
+    #def __init__(self, resource_name=None, attribute_map=None, method_map=None):
+#    def __init__(self):
+#        if resource_name is None:
+#            resource_name = RESOURCE_NAME
+#        if method_map is None:
+#            method_map = me
+#        super(Controller, self).__init__(self,
+#                                         #resource_name=resource_name,
+#                                         attribute_map=cron_attr_map,
+#                                         method_map=method_map)
 
 
 def create_resource(): 

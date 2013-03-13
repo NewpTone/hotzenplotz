@@ -36,7 +36,6 @@ class APIRouter(wsgi.Router):
 
     @classmethod
     def factory(cls, global_config, **local_config):
-        import pdb; pdb.set_trace()
         return cls()
 
     def __init__(self):
@@ -93,4 +92,3 @@ class APIRouter(wsgi.Router):
 #                       controller=self.controller['exec'],
 #                       action='delete',
 #                       conditions=dict(method=['DELETE']))
-        #import pdb; pdb.set_trace()

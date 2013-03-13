@@ -81,7 +81,7 @@ LOG = logging.getLogger(__name__)
 #    if method == 'delete_load_balancer':
 #        result['cmd'] = 'delete_lb'
 #        message['user_id'] = kwargs['user_id']
-#        message['tenant_id'] = kwargs['tenant_id']
+#        message['project_id'] = kwargs['project_id']
 #        message['uuid'] = kwargs['uuid']
 #        message['protocol'] = kwargs['protocol']
 #    elif method == 'create_load_balancer':
@@ -105,7 +105,7 @@ LOG = logging.getLogger(__name__)
 #        return
 #
 #    payload = {
-#        'tenant_id': load_balancer_ref.project_id,
+#        'project_id': load_balancer_ref.project_id,
 #        'uuid': load_balancer_ref.uuid,
 #        'name': load_balancer_ref.name,
 #        'free': load_balancer_ref.free,
@@ -116,7 +116,7 @@ LOG = logging.getLogger(__name__)
 #
 #def create_for_instance(context, **kwargs):
 #    expect_keys = [
-#        'user_id', 'tenant_id', 'instance_uuid', 'instance_port',
+#        'user_id', 'project_id', 'instance_uuid', 'instance_port',
 #    ]
 #    utils.check_input_parameters(expect_keys, **kwargs)
 #
@@ -145,7 +145,7 @@ LOG = logging.getLogger(__name__)
 #            'health_check_unhealthy_threshold': 2,
 #        }
 #        load_balancer_values = {
-#            'tenant_id': kwargs['tenant_id'],
+#            'project_id': kwargs['project_id'],
 #            'user_id': kwargs['user_id'],
 #            'free': True,
 #            'protocol': 'tcp',
@@ -163,7 +163,7 @@ LOG = logging.getLogger(__name__)
 #
 #def delete_load_balancer(context, **kwargs):
 #    expect_keys = [
-#        'tenant_id', 'uuid',
+#        'project_id', 'uuid',
 #    ]
 #    utils.check_input_parameters(expect_keys, **kwargs)
 #
@@ -180,7 +180,7 @@ LOG = logging.getLogger(__name__)
 #
 #def delete_for_instance(context, **kwargs):
 #    expect_keys = [
-#        'tenant_id', 'instance_uuid',
+#        'project_id', 'instance_uuid',
 #    ]
 #    utils.check_input_parameters(expect_keys, **kwargs)
 #
@@ -192,7 +192,7 @@ LOG = logging.getLogger(__name__)
 #            try:
 #                if load_balancer_ref.free:
 #                    args = {
-#                        'tenant_id': context.tenant_id,
+#                        'project_id': context.project_id,
 #                        'uuid': load_balancer_ref.uuid,
 #                    }
 #                    delete_load_balancer(context, **args)
@@ -202,7 +202,7 @@ LOG = logging.getLogger(__name__)
 #                    new_instance_uuids = filter(lambda x: x != instance_uuid,
 #                                                old_instance_uuids)
 #                    args = {
-#                        'tenant_id': context.tenant_id,
+#                        'project_id': context.project_id,
 #                        'user_id': context.user_id,
 #                        'protocol': load_balancer_ref.protocol,
 #                        'uuid': load_balancer_ref.uuid,
@@ -218,7 +218,7 @@ LOG = logging.getLogger(__name__)
 #
 #def update_load_balancer(context, **kwargs):
 #    expect_keys = [
-#        'tenant_id', 'uuid',
+#        'project_id', 'uuid',
 #    ]
 #    utils.check_input_parameters(expect_keys, **kwargs)
 #
@@ -268,7 +268,7 @@ LOG = logging.getLogger(__name__)
 #
 def get_all_crons(context, **kwargs):
    # expect_keys = [
-   #     'user_id', 'tenant_id', 'all_tenants',
+   #     'user_id', 'project_id', 'all_tenants',
    # ]
    # utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -278,11 +278,11 @@ def get_all_crons(context, **kwargs):
         if context.is_admin and all_tenants:
             filters = {}
         else:
-            filters = {'project_id': kwargs['tenant_id']}
+            filters = {'project_id': kwargs['project_id']}
             context = context.elevated(read_deleted='no')
         all_crons = db.crons_get_all(context, filters=filters)
         for cron_ref in all_crons:
-            result.append(format_msg_to_client(cron_ref))
+            result.append(cron_ref.to_dict())
     except Exception, exp:
         raise exception.GetAllCronFailed(msg=str(exp))
 
@@ -290,7 +290,7 @@ def get_all_crons(context, **kwargs):
 
 def get_cron(context, **kwargs):
     expect_keys = [
-        'tenant_id', 'uuid',
+        'project_id', 'uuid',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -298,7 +298,7 @@ def get_cron(context, **kwargs):
     uuid = kwargs['uuid']
     try:
         cron_ref = db.cron_get_by_uuid(context, uuid)
-        result = format_msg_to_client(cron_ref)
+        result = cron_ref.to_dict()
     except Exception, exp:
         raise exception.GetCronFailed(msg=str(exp))
 
@@ -307,7 +307,7 @@ def get_cron(context, **kwargs):
 
 #def get_load_balancer_by_instance_uuid(context, **kwargs):
 #    expect_keys = [
-#        'tenant_id', 'instance_uuid',
+#        'project_id', 'instance_uuid',
 #    ]
 #    utils.check_input_parameters(expect_keys, **kwargs)
 #    result = None
@@ -326,7 +326,7 @@ def get_cron(context, **kwargs):
 #
 #def get_all_http_servers(context, **kwargs):
 #    expect_keys = [
-#        'user_id', 'tenant_id',
+#        'user_id', 'project_id',
 #    ]
 #    utils.check_input_parameters(expect_keys, **kwargs)
 #

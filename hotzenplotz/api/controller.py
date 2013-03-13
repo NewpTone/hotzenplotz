@@ -24,6 +24,7 @@ from hotzenplotz.openstack.common import log as logging
 from hotzenplotz.openstack.common import wsgi
 
 from hotzenplotz.api import api
+from hotzenplotz.common import context
 
 LOG = logging.getLogger(__name__)
 
@@ -45,12 +46,14 @@ class ZmqClient(object):
 
 class Controller(object):
 
-    def __init__(self, resource_name=None, attribute_map=None, method_map=None):
-        self.resource_name = resource_name
-        self.attribute_map = attribute_map
-        self.method_map    = method_map 
+#    def __init__(self, resource_name=None, attribute_map=None, method_map=None):
+#        import pdb; pdb.set_trace()
+#        self.resource_name = resource_name
+#        self.attribute_map = attribute_map
+#        self.method_map    = method_map 
         #self.client = ZmqClient(host=cfg.CONF.server_listen,
         #                      port=cfg.CONF.server_listen_port)
+    def __init__(self):
         super(Controller, self).__init__()
 
     def verify_request(self, context, req, body):
@@ -59,28 +62,29 @@ class Controller(object):
 
     def index(self, req, **kwargs):
         """Returns a list of the required entities"""
+        import pdb; pdb.set_trace()
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
-        method = self.method_map['index']
+        method = self.METHOD_MAP['index']
         args = { 
                 'user_id': context.user_id,
-                'tenant_id': context.tenant_id,
+                'project_id': context.project_id,
                 'is_admin': context.is_admin,
                 'all_tenants': False,
         }   
-        ctxt = context.get_context(**args)
+        #ctxt = context.get_context(**args)
         method_func = getattr(api, method)
-        result = method_func(ctxt, **args)
+        result = method_func(context, **args)
         return result
 
     def show(self, req, id, **kwargs):
         """Return detailed information about the requested entity"""
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
-        method = self.method_map['show'],
+        method = self.METHOD_MAP['show'],
         args = {
                 'user_id': context.user_id,
-                'tenant_id': context.tenant_id,
+                'project_id': context.project_id,
                 'id': id, 
                }  
         LOG.debug(args)
@@ -94,10 +98,10 @@ class Controller(object):
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
         zmq_args = {
-            'method': self.method_map['create'],
+            'method': self.METHOD_MAP['create'],
             'args': {
                 'user_id': context.user_id,
-                'tenant_id': context.tenant_id,
+                'project_id': context.project_id,
             },
         }
         resource_info = body[self.resource_name]
@@ -111,10 +115,10 @@ class Controller(object):
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
         zmq_args = {
-            'method': self.method_map['update'],
+            'method': self.METHOD_MAP['update'],
             'args': {
                 'user_id': context.user_id,
-                'tenant_id': context.tenant_id,
+                'project_id': context.project_id,
                 'uuid': id,
             },
         }
@@ -129,10 +133,10 @@ class Controller(object):
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
         zmq_args = {
-            'method': self.method_map['update'],
+            'method': self.METHOD_MAP['update'],
             'args': {
                 'user_id': context.user_id,
-                'tenant_id': context.tenant_id,
+                'project_id': context.project_id,
                 'is_admin': context.is_admin,
                 'uuid': id,
             },

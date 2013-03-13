@@ -38,7 +38,6 @@ class FaultWrapper(wsgi.Middleware):
 
     @classmethod
     def factory(cls, global_config, **local_config):
-        import pdb; pdb.set_trace()
         def _factory(app):
             return cls(app, **local_config)
         return _factory
@@ -46,7 +45,6 @@ class FaultWrapper(wsgi.Middleware):
     @webob.dec.wsgify(RequestClass=wsgi.Request)
     def __call__(self, req):
         try:
-            import pdb; pdb.set_trace()
             return req.get_response(self.application)
         except Exception as ex:
             return self.handle_exception(req, ex)

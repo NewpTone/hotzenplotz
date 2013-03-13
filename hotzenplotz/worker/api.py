@@ -78,7 +78,7 @@ def format_msg_to_client(load_balancer_ref):
 def format_msg_to_worker(load_balancer_ref):
     result = dict()
     result['user_id'] = load_balancer_ref.user_id
-    result['tenant_id'] = load_balancer_ref.project_id
+    result['project_id'] = load_balancer_ref.project_id
     result['uuid'] = load_balancer_ref.uuid
     result['protocol'] = load_balancer_ref.protocol
     expect_keys = [
@@ -130,7 +130,7 @@ def get_msg_to_worker(context, method, **kwargs):
     if method == 'delete_load_balancer':
         result['cmd'] = 'delete_lb'
         message['user_id'] = kwargs['user_id']
-        message['tenant_id'] = kwargs['tenant_id']
+        message['project_id'] = kwargs['project_id']
         message['uuid'] = kwargs['uuid']
         message['protocol'] = kwargs['protocol']
     elif method == 'create_load_balancer':
@@ -154,7 +154,7 @@ def notify(context, load_balancer_ref, event):
         return
 
     payload = {
-        'tenant_id': load_balancer_ref.project_id,
+        'project_id': load_balancer_ref.project_id,
         'uuid': load_balancer_ref.uuid,
         'name': load_balancer_ref.name,
         'free': load_balancer_ref.free,
@@ -179,7 +179,7 @@ def create_load_balancer(context, **kwargs):
 
 def create_for_instance(context, **kwargs):
     expect_keys = [
-        'user_id', 'tenant_id', 'instance_uuid', 'instance_port',
+        'user_id', 'project_id', 'instance_uuid', 'instance_port',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -208,7 +208,7 @@ def create_for_instance(context, **kwargs):
             'health_check_unhealthy_threshold': 2,
         }
         load_balancer_values = {
-            'tenant_id': kwargs['tenant_id'],
+            'project_id': kwargs['project_id'],
             'user_id': kwargs['user_id'],
             'free': True,
             'protocol': 'tcp',
@@ -226,7 +226,7 @@ def create_for_instance(context, **kwargs):
 
 def delete_load_balancer(context, **kwargs):
     expect_keys = [
-        'tenant_id', 'uuid',
+        'project_id', 'uuid',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -243,7 +243,7 @@ def delete_load_balancer(context, **kwargs):
 
 def delete_for_instance(context, **kwargs):
     expect_keys = [
-        'tenant_id', 'instance_uuid',
+        'project_id', 'instance_uuid',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -255,7 +255,7 @@ def delete_for_instance(context, **kwargs):
             try:
                 if load_balancer_ref.free:
                     args = {
-                        'tenant_id': context.tenant_id,
+                        'project_id': context.project_id,
                         'uuid': load_balancer_ref.uuid,
                     }
                     delete_load_balancer(context, **args)
@@ -265,7 +265,7 @@ def delete_for_instance(context, **kwargs):
                     new_instance_uuids = filter(lambda x: x != instance_uuid,
                                                 old_instance_uuids)
                     args = {
-                        'tenant_id': context.tenant_id,
+                        'project_id': context.project_id,
                         'user_id': context.user_id,
                         'protocol': load_balancer_ref.protocol,
                         'uuid': load_balancer_ref.uuid,
@@ -281,7 +281,7 @@ def delete_for_instance(context, **kwargs):
 
 def update_load_balancer(context, **kwargs):
     expect_keys = [
-        'tenant_id', 'uuid',
+        'project_id', 'uuid',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -332,7 +332,7 @@ def update_load_balancer_http_servers(context, **kwargs):
 
 def get_load_balancer(context, **kwargs):
     expect_keys = [
-        'tenant_id', 'uuid',
+        'project_id', 'uuid',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -349,7 +349,7 @@ def get_load_balancer(context, **kwargs):
 
 def get_load_balancer_by_instance_uuid(context, **kwargs):
     expect_keys = [
-        'tenant_id', 'instance_uuid',
+        'project_id', 'instance_uuid',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
     result = None
@@ -366,7 +366,7 @@ def get_load_balancer_by_instance_uuid(context, **kwargs):
 
 def get_all_load_balancers(context, **kwargs):
     expect_keys = [
-        'user_id', 'tenant_id', 'all_tenants',
+        'user_id', 'project_id', 'all_tenants',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 
@@ -376,7 +376,7 @@ def get_all_load_balancers(context, **kwargs):
         if context.is_admin and all_tenants:
             filters = {}
         else:
-            filters = {'project_id': kwargs['tenant_id']}
+            filters = {'project_id': kwargs['project_id']}
             context = context.elevated(read_deleted='no')
         all_load_balancers = db.load_balancer_get_all(context, filters=filters)
         for load_balancer_ref in all_load_balancers:
@@ -389,7 +389,7 @@ def get_all_load_balancers(context, **kwargs):
 
 def get_all_http_servers(context, **kwargs):
     expect_keys = [
-        'user_id', 'tenant_id',
+        'user_id', 'project_id',
     ]
     utils.check_input_parameters(expect_keys, **kwargs)
 

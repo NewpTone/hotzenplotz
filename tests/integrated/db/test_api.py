@@ -19,18 +19,18 @@ class DBApiTestCase(unittest.TestCase):
         #self.context = context.get_context()
         self.configs = dict()
         self.user_id = 'fake-user-0'
-        self.tenant_id = 'fake-project-0'
+        self.project_id = 'fake-project-0'
         self.cron = {
             'id':        uuidutils.generate_uuid(),
             'user_id':   self.user_id,
-            'tenant_id': self.tenant_id,
+            'project_id': self.project_id,
             'title':     'apt-mirror',
             'command':   'apt-mirror',
             'hour':      '21',
             'minute':    '30',
             'user':      'root',         
         }
-        self.context = context.get_context(self.user_id, self.tenant_id)
+        self.context = context.get_context(self.user_id, self.project_id)
 
     def tearDown(self):
         pass

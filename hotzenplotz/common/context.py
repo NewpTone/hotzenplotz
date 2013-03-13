@@ -31,7 +31,7 @@ class Context(object):
 
     """
 
-    def __init__(self, user_id, tenant_id, is_admin=None, read_deleted="no",
+    def __init__(self, user_id, project_id, is_admin=None, read_deleted="no",
                  roles=None, timestamp=None, **kwargs):
         """
         :param read_deleted: 'no' indicates deleted records are hidden,
@@ -39,7 +39,7 @@ class Context(object):
         only deleted records are visible.
         """
         self.user_id = user_id
-        self.tenant_id = tenant_id
+        self.project_id = project_id
         self.roles = roles or []
         self.is_admin = is_admin
         lower_roles = [x.lower() for x in self.roles]
@@ -76,7 +76,7 @@ class Context(object):
 
     def to_dict(self):
         return {'user_id': self.user_id,
-                'tenant_id': self.tenant_id,
+                'project_id': self.project_id,
                 'is_admin': self.is_admin,
                 'read_deleted': self.read_deleted,
                 'roles': self.roles,
@@ -100,15 +100,15 @@ class Context(object):
         return context
 
 
-def get_context(tenant_id=None, is_admin=False, **kwargs):
+def get_context(project_id=None, is_admin=False, **kwargs):
     return Context(user_id=None,
-                   tenant_id=tenant_id,
+                   project_id=project_id,
                    is_admin=is_admin,
                    read_deleted="no")
 
 
 def get_admin_context(read_deleted="no"):
     return Context(user_id=None,
-                   tenant_id=None,
+                   project_id=None,
                    is_admin=True,
                    read_deleted=read_deleted)

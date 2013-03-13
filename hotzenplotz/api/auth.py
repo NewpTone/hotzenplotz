@@ -31,7 +31,6 @@ LOG = logging.getLogger(__name__)
 
 def pipeline_factory(loader, global_config, **local_config):
     """Create a paste pipeline based on 'auth_strategy'"""
-    import pdb; pdb.set_trace()
     pipeline = local_config[cfg.CONF.auth_strategy]
     pipeline = pipeline.split()
     filters = [loader.get_filter(n) for n in pipeline[:-1]]
@@ -53,7 +52,6 @@ class KeystoneContext(wsgi.Middleware):
 
     @webob.dec.wsgify
     def __call__(self, req):
-        import pdb; pdb.set_trace()
         # Determine the user ID
         user_id = req.headers.get('X_USER_ID', req.headers.get('X_USER'))
         if not user_id:
@@ -61,13 +59,13 @@ class KeystoneContext(wsgi.Middleware):
             return webob.exc.HTTPUnauthorized()
 
         # Determine the tenant
-        tenant_id = req.headers.get('X_TENANT_ID', req.headers.get('X_TENANT'))
+        project_id = req.headers.get('X_TENANT_ID', req.headers.get('X_TENANT'))
 
         # Suck out the roles
         roles = [r.strip() for r in req.headers.get('X_ROLE', '').split(',')]
 
         # Create a context with the authentication data
-        ctx = context.Context(user_id, tenant_id, roles=roles)
+        ctx = context.Context(user_id, project_id, roles=roles)
 
         # Inject the context...
         req.environ['hotzenplotz.context'] = ctx
