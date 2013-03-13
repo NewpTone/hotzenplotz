@@ -109,6 +109,7 @@ def get_exec(context, **kwargs):
 
     return {'exec_resource': result}
 
+
 #File 
 def get_all_files(context, **kwargs):
    # expect_keys = [
@@ -151,6 +152,7 @@ def get_file(context, **kwargs):
     return {'file_resource': result}
 
 
+#Group
 def get_all_groups(context, **kwargs):
    # expect_keys = [
    #     'user_id', 'project_id', 'all_tenants',
@@ -192,7 +194,7 @@ def get_group(context, **kwargs):
     return {'group_resource': result}
 
 
-
+#Package
 def get_all_packages(context, **kwargs):
    # expect_keys = [
    #     'user_id', 'project_id', 'all_tenants',
@@ -234,7 +236,7 @@ def get_package(context, **kwargs):
     return {'package_resource': result}
 
 
-
+#Service
 def get_all_services(context, **kwargs):
    # expect_keys = [
    #     'user_id', 'project_id', 'all_tenants',
@@ -276,7 +278,7 @@ def get_service(context, **kwargs):
     return {'service_resource': result}
 
 
-
+#User
 def get_all_users(context, **kwargs):
    # expect_keys = [
    #     'user_id', 'project_id', 'all_tenants',

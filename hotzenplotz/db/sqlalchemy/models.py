@@ -79,7 +79,7 @@ class Cron(BASE, DictBase):
     """Represents cron resource."""
 
     __tablename__ = 'crons'
-    command = sql.Column(sql.String(255), default=None)
+    command = sql.Column(sql.String(5000), default=None)
     ensure = sql.Column(sql.String(8), default='present')
     environment = sql.Column(sql.String(255), default=None)
     hour = sql.Column(sql.String(16), default=None)
@@ -90,21 +90,22 @@ class Cron(BASE, DictBase):
     user = sql.Column(sql.String(32), default=None)
 
 
-class Execs(BASE, DictBase):
+class Exec(BASE, DictBase):
     """Represents exec resource."""
 
     __tablename__ = 'execs'
-    create = sql.Column(sql.String(255),default=None)
-    cwd = sql.Column(sql.String(128),default=None)
-    environment = sql.Column(sql.String(255),default=None)
-    group = sql.Column(sql.String(16),default=None)
-    user = sql.Column(sql.String(32),default=None)
-    logoutput = sql.Column(sql.String(10),default=None)
-    onlyif = sql.Column(sql.String(500),default=None)
-    path = sql.Column(sql.String(255),default=None)
-    refresh = sql.Column(sql.String(255),default=None)
-    refreshonly = sql.Column(sql.Boolean,default=False)
-    unless  = sql.Column(sql.String(500),default=None)
+    command = sql.Column(sql.String(5000), default=None)
+    create = sql.Column(sql.String(255), default=None)
+    cwd = sql.Column(sql.String(128), default=None)
+    environment = sql.Column(sql.String(255), default=None)
+    group = sql.Column(sql.String(128), default=None)
+    user = sql.Column(sql.String(128), default=None)
+    logoutput = sql.Column(sql.String(16), default='on_failture')
+    onlyif = sql.Column(sql.String(5000), default=None)
+    path = sql.Column(sql.String(255), default=None)
+    refresh = sql.Column(sql.String(255), default=None)
+    refreshonly = sql.Column(sql.Boolean, default=False)
+    unless  = sql.Column(sql.String(5000), default=None)
 
 
 class Files(BASE, DictBase):
@@ -112,11 +113,11 @@ class Files(BASE, DictBase):
 
     __tablename__ = 'files'
     path = sql.Column(sql.String(255), default=None)
-    content = sql.Column(sql.String(500), default=None)
+    content = sql.Column(sql.String(5000), default=None)
     ensure = sql.Column(sql.String(16), default=None)
-    group = sql.Column(sql.String(16),default=None)
-    owner = sql.Column(sql.String(16),default=None)
-    mode = sql.Column(sql.String(8),default=None)
+    group = sql.Column(sql.String(128),default=None)
+    owner = sql.Column(sql.String(128),default=None)
+    mode = sql.Column(sql.String(16),default=None)
     source = sql.Column(sql.String(255),default=None)
     target = sql.Column(sql.String(255),default=None)
     recurse = sql.Column(sql.String(8),default=None)
