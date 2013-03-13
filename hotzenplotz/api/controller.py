@@ -62,7 +62,6 @@ class Controller(object):
 
     def index(self, req, **kwargs):
         """Returns a list of the required entities"""
-        import pdb; pdb.set_trace()
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
         method = self.METHOD_MAP['index']
@@ -72,25 +71,24 @@ class Controller(object):
                 'is_admin': context.is_admin,
                 'all_tenants': False,
         }   
-        #ctxt = context.get_context(**args)
         method_func = getattr(api, method)
         result = method_func(context, **args)
         return result
 
     def show(self, req, id, **kwargs):
         """Return detailed information about the requested entity"""
+        import pdb; pdb.set_trace()
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
-        method = self.METHOD_MAP['show'],
+        method = self.METHOD_MAP['show']
         args = {
                 'user_id': context.user_id,
                 'project_id': context.project_id,
                 'id': id, 
                }  
         LOG.debug(args)
-        ctxt = context.get_context(**args)
         method_func = getattr(api, method)
-        result = method_func(ctxt, **args)
+        result = method_func(context, **args)
         return result
 
     def create(self, req, body=None, **kwargs):

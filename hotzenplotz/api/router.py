@@ -53,7 +53,7 @@ class APIRouter(wsgi.Router):
                        controller=self.controller['cron'],
                        action='index',
                        conditions=dict(method=['GET']))
-        mapper.connect('/crons/{cron_id}',
+        mapper.connect('/crons/{id}',
                        controller=self.controller['cron'],
                        action='show',
                        conditions=dict(method=['GET']))
