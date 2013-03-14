@@ -46,13 +46,10 @@ class ZmqClient(object):
 
 class Controller(object):
 
-#    def __init__(self, resource_name=None, attribute_map=None, method_map=None):
+    def __init__(self):
 #        import pdb; pdb.set_trace()
-#        self.resource_name = resource_name
-#        self.attribute_map = attribute_map
-#        self.method_map    = method_map 
-        #self.client = ZmqClient(host=cfg.CONF.server_listen,
-        #                      port=cfg.CONF.server_listen_port)
+        self.client = ZmqClient(host=cfg.CONF.server_listen,
+                              port=cfg.CONF.server_listen_port)
     def __init__(self):
         super(Controller, self).__init__()
 
@@ -102,8 +99,8 @@ class Controller(object):
                 'project_id': context.project_id,
             },
         }
-        resource_info = body[self.resource_name]
-        zmq_args['args'].update(resource_info)
+        #resource_info = body[self.RESOURCE_NAME]
+        zmq_args.update(body)
         LOG.debug(zmq_args)
         result = self.client.call(zmq_args)
         return result

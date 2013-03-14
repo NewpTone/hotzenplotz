@@ -17,6 +17,7 @@
 #    under the License.
 
 import zmq
+import eventlet
 
 from hotzenplotz.openstack.common import cfg
 from hotzenplotz.openstack.common import jsonutils
@@ -24,12 +25,10 @@ from hotzenplotz.openstack.common import log as logging
 
 from hotzenplotz import manager
 from hotzenplotz.common import exception
-from hotzenplotz.common import flags
-from hotzenplotz.common import utils
 from hotzenplotz.worker.driver import cron
 
 LOG = logging.getLogger(__name__)
-
+FLAGS = cfg.CONF
 
 class WorkerManager(manager.Manager):
 
@@ -42,16 +41,15 @@ class WorkerManager(manager.Manager):
         Child class should override this method
 
         """
+        zmq_context = zmq.Context()
         self.pool = eventlet.GreenPool(1)
+        self.handler = zmq_context.socket(zmq.REP)
 
     def start(self):
-        context = zmq.Context()
 
        # Socket to receive messages on
-        handler = zmq_context.socket(zmq.REP)
-        handler.bind("tcp://%s:%s" % (FLAGS.server_listen,
-                                      FLAGS.server_listen_port))
-
+        self.handler.bind("tcp://%s:%s" % (FLAGS.worker_listen,
+                                      FLAGS.worker_listen_port))
         self.cronhandler = cron.CronHandler()
 
     def wait(self):
@@ -59,43 +57,38 @@ class WorkerManager(manager.Manager):
         LOG.info('hotzenplotz worker starting...')
         expect_keys=['cron_resource']
         while True:
-            socks = dict(self.poller.poll())
-            if socks.get(self.broadcast) == zmq.POLLIN:
-                msg_type, msg_id, msg_body = self.broadcast.recv_multipart()
-                message = jsonutils.loads(msg_body)
-                LOG.info('Received request: %s', message)
+            socks = dict(self.handler.poll())
+            response_msg = {'code': 200, 'message': 'OK'}
+            # check input message
+            if not message.keys() or (message.keys()[0] not in expect_keys):
+                LOG.warn("Error. No resource type in message")
+                response_msg['code'] = 500
+                response_msg['message'] = "missing resource type field"
 
-                response_msg = {'code': 200, 'message': 'OK'}
-                # check input message
-                if not message.keys() or (message.keys()[0] not in expect_keys):
-                    LOG.warn("Error. No resource type in message")
+                self.handler.send_multipart([msg_type, msg_id,
+                                              jsonutils.dumps(
+                                                  response_msg)])
+                break
+
+            if message['cron_resource']:
+                try:
+                    self.cronhandler.do_config(message)
+                except exception.CronError, e:
                     response_msg['code'] = 500
-                    response_msg['message'] = "missing resource type field"
-
-                    self.feedback.send_multipart([msg_type, msg_id,
-                                                  jsonutils.dumps(
-                                                      response_msg)])
-                    break
-
-                if message['cron_resource']:
-                    try:
-                        self.cronhandler.do_config(message)
-                    except exception.CronError, e:
-                        response_msg['code'] = 500
-                        response_msg['message'] = str(e)
-                elif message['']:
-                    try:
-                        self.ha_configurer.do_config(message)
-                    except exception.HaproxyConfigureError, e:
-                        response_msg['code'] = 500
-                        response_msg['message'] = str(e)
-                else:
-                    LOG.exception('Error. Unsupported protocol')
+                    response_msg['message'] = str(e)
+            elif message['']:
+                try:
+                    self.ha_configurer.do_config(message)
+                except exception.HaproxyConfigureError, e:
                     response_msg['code'] = 500
-                    response_msg['message'] = "Error: unsupported protocol"
+                    response_msg['message'] = str(e)
+            else:
+                LOG.exception('Error. Unsupported protocol')
+                response_msg['code'] = 500
+                response_msg['message'] = "Error: unsupported protocol"
 
-                # Send results to feedback
-                response_msg['cmd'] = message['cmd']
-                response_msg['uuid'] = message['args']['uuid']
-                self.feedback.send_multipart([msg_type, msg_id,
-                                              jsonutils.dumps(response_msg)])
+            # Send results to feedback
+            response_msg['cmd'] = message['cmd']
+            response_msg['uuid'] = message['args']['uuid']
+            self.feedback.send_multipart([msg_type, msg_id,
+                                          jsonutils.dumps(response_msg)])

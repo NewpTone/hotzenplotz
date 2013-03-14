@@ -19,14 +19,14 @@
 """Method function """
 from hotzenplotz import db
 from hotzenplotz.common import exception
-#from hotzenplotz.common import flags
 #from hotzenplotz.common import utils
 #from hotzenplotz.server import protocol
 #from hotzenplotz.server import state
 #from hotzenplotz.openstack.common.notifier import api as notifier
+from hotzenplotz.openstack.common import cfg
 from hotzenplotz.openstack.common import log as logging
 
-#FLAGS = flags.FLAGS
+FLAGS = cfg.CONF 
 LOG = logging.getLogger(__name__)
 
 #Cron

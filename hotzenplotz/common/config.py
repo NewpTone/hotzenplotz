@@ -46,6 +46,12 @@ core_opts = [
     cfg.IntOpt('api_listen_port',
                default=8664,
                help='Port for hotzenplotz API to listen.'),
+    cfg.StrOpt('worker_listen',
+               default='127.0.0.1',
+               help='IP address for hotzenplotz Worker to listen.'),
+    cfg.IntOpt('worker_listen_port',
+               default=8665,
+               help='Port for hotzenplotz Worker to listen.'),
 ]
 
 cfg.CONF.register_opts(core_opts)
