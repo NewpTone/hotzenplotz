@@ -94,10 +94,6 @@ class Controller(object):
         context = req.environ['hotzenplotz.context']
         zmq_args = {
             'method': self.METHOD_MAP['create'],
-            'args': {
-                'user_id': context.user_id,
-                'project_id': context.project_id,
-            },
         }
         #resource_info = body[self.RESOURCE_NAME]
         zmq_args.update(body)

@@ -57,38 +57,33 @@ class WorkerManager(manager.Manager):
         LOG.info('hotzenplotz worker starting...')
         expect_keys=['cron_resource']
         while True:
-            socks = dict(self.handler.poll())
-            response_msg = {'code': 200, 'message': 'OK'}
+            if self.handler.poll(5000):
+                message = self.handler.recv_json()
             # check input message
-            if not message.keys() or (message.keys()[0] not in expect_keys):
-                LOG.warn("Error. No resource type in message")
-                response_msg['code'] = 500
-                response_msg['message'] = "missing resource type field"
-
-                self.handler.send_multipart([msg_type, msg_id,
-                                              jsonutils.dumps(
-                                                  response_msg)])
-                break
-
-            if message['cron_resource']:
-                try:
-                    self.cronhandler.do_config(message)
-                except exception.CronError, e:
+                if not message.keys() or (message.keys()[0] not in expect_keys):
+                    LOG.warn("Error. No resource type in message")
                     response_msg['code'] = 500
-                    response_msg['message'] = str(e)
-            elif message['']:
-                try:
-                    self.ha_configurer.do_config(message)
-                except exception.HaproxyConfigureError, e:
+                    response_msg['message'] = "missing resource type field"
+
+                    self.handler.send_json(response_msg)
+                    break
+                 #response_msg = {'code': 200, 'message': 'OK'}
+                if message['cron_resource']:
+                    try:
+                        self.cronhandler.do_config(message)
+                    except exception.CronError, e:
+                        response_msg['code'] = 500
+                        response_msg['message'] = str(e)
+                elif message['exec_resource']:
+                    try:
+                        self.cron_resrouce.do_config(message)
+                    except exception.HaproxyConfigureError, e:
+                        response_msg['code'] = 500
+                        response_msg['message'] = str(e)
+                else:
+                    LOG.exception('Error. Unsupported protocol')
                     response_msg['code'] = 500
-                    response_msg['message'] = str(e)
+                    response_msg['message'] = "Error: unsupported protocol"
+
             else:
-                LOG.exception('Error. Unsupported protocol')
-                response_msg['code'] = 500
-                response_msg['message'] = "Error: unsupported protocol"
-
-            # Send results to feedback
-            response_msg['cmd'] = message['cmd']
-            response_msg['uuid'] = message['args']['uuid']
-            self.feedback.send_multipart([msg_type, msg_id,
-                                          jsonutils.dumps(response_msg)])
+                pass    

@@ -30,7 +30,7 @@ class CronHandler(object):
             LOG.warn('Bad request: %s' % e)
             raise exception.CronConfigureError(explanation=str(e))
 
-        cmd = request['cmd']
+        cmd = request['method']
         msg = request['cron_resource']
 
         if cmd == 'create_cron':
