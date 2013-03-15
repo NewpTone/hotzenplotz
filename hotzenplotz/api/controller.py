@@ -18,7 +18,7 @@
 """
 Controller framework
 """
-
+import zmq
 from hotzenplotz.openstack.common import cfg
 from hotzenplotz.openstack.common import log as logging
 from hotzenplotz.openstack.common import wsgi
@@ -33,6 +33,7 @@ class ZmqClient(object):
     """
     def __init__(self, host='127.0.0.1', port=8664):
         url = "tcp://%s:%s" % (host, port)
+
         context = zmq.Context()
         self.handler = context.socket(zmq.REQ)
         self.handler.connect(url) 
@@ -48,10 +49,9 @@ class Controller(object):
 
     def __init__(self):
 #        import pdb; pdb.set_trace()
-        self.client = ZmqClient(host=cfg.CONF.server_listen,
-                              port=cfg.CONF.server_listen_port)
-    def __init__(self):
         super(Controller, self).__init__()
+        self.client = ZmqClient(host=cfg.CONF.api_listen,
+                              port=cfg.CONF.api_listen_port)
 
     def verify_request(self, context, req, body):
         """verifies required attributes are in request"""
@@ -74,7 +74,6 @@ class Controller(object):
 
     def show(self, req, id, **kwargs):
         """Return detailed information about the requested entity"""
-        import pdb; pdb.set_trace()
         LOG.info(req.environ['hotzenplotz.context'])
         context = req.environ['hotzenplotz.context']
         method = self.METHOD_MAP['show']
@@ -95,6 +94,7 @@ class Controller(object):
         zmq_args = {
             'method': self.METHOD_MAP['create'],
         }
+        import pdb; pdb.set_trace()
         #resource_info = body[self.RESOURCE_NAME]
         zmq_args.update(body)
         LOG.debug(zmq_args)

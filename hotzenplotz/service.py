@@ -58,6 +58,7 @@ class WSGIService(object):
     def start(self):
         """Start serving this service using loaded configuration."""
         config.show_configs()
+        import pdb;pdb.set_trace()
         self.service.start()
 
     def stop(self):

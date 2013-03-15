@@ -21,7 +21,7 @@ import routes
 from hotzenplotz.openstack.common import wsgi
 from hotzenplotz.openstack.common import log as logging
 
-from hotzenplotz.api.resource import cron
+from hotzenplotz.api.resource import crons
 #from hotzenplotz.api.resource import Exec
 #from hotzenplotz.api.resource import pool
 
@@ -48,7 +48,7 @@ class APIRouter(wsgi.Router):
         mapper.redirect("", "/")
         
         #Cron Operations
-        self.controller['cron'] = cron.create_resource()
+        self.controller['cron'] = crons.create_resource()
         mapper.connect('/crons',
                        controller=self.controller['cron'],
                        action='index',

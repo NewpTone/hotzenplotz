@@ -108,7 +108,7 @@ attr_map = {
 method_map = {
     'index':  'get_all_crons',
     'show':   'get_cron',
-    'create': 'delete_cron',
+    'create': 'create_cron',
     'update': 'update_cron',
     'delete': 'delete_cron',
     }
@@ -122,17 +122,8 @@ class Controller(controller.Controller):
     METHOD_MAP = method_map
     ATTRIBUTE_MAP = attr_map
 
-    #def __init__(self, resource_name=None, attribute_map=None, method_map=None):
 #    def __init__(self):
-#        if resource_name is None:
-#            resource_name = RESOURCE_NAME
-#        if method_map is None:
-#            method_map = me
-#        super(Controller, self).__init__(self,
-#                                         #resource_name=resource_name,
-#                                         attribute_map=cron_attr_map,
-#                                         method_map=method_map)
-
+#        super(Controller, self).__init__()
 
 def create_resource(): 
-    return wsgi.Resource(Controller())
+     return wsgi.Resource(Controller())
