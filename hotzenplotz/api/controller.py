@@ -48,7 +48,6 @@ class ZmqClient(object):
 class Controller(object):
 
     def __init__(self):
-#        import pdb; pdb.set_trace()
         super(Controller, self).__init__()
         self.client = ZmqClient(host=cfg.CONF.api_listen,
                               port=cfg.CONF.api_listen_port)
